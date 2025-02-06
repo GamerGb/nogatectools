@@ -42,7 +42,7 @@ $keystrokes = @(
      9,    # Tab
      9,    # Tab
      9,    # Tab
-     
+    13,    # Enter     
     40,    # Down
     40,    # Down
     40,    # Down
