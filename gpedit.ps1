@@ -36,6 +36,13 @@ $keystrokes = @(
     9,    # Tab
     13,    # Enter
 	40,    # Down
+     9,    # Tab
+    13,    # Enter
+     9,    # Tab
+     9,    # Tab
+     9,    # Tab
+     9,    # Tab
+     
     40,    # Down
     40,    # Down
     40,    # Down
@@ -130,7 +137,7 @@ $keystrokes = @(
 
 foreach ($key in $keystrokes) {
     [KeyboardSimulator]::PressKey($key)
-	    Start-Sleep -Milliseconds 350  # Intervalo entre os pressionamentos
+	    Start-Sleep -Milliseconds 500  # Intervalo entre os pressionamentos
 }
 
 # Aguarda um pouco antes de finalizar
