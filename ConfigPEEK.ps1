@@ -25,7 +25,7 @@ Add-Type -TypeDefinition @"
 start SystemPropertiesPerformance
 
 # Aguarda o tempo necessário para a janela ser carregada
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 5
 
 # Simula a navegação e a seleção
 $keystrokes = @(
