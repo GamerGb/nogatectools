@@ -97,7 +97,7 @@ Function Customize {
 Write-Output "Resetting Taskbar icons to keep only Explorer..."
 
 # Limpa os ícones da barra de tarefas
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Type Binary -Value (mProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesResolve" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Type Binary -Value (mProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesResolve" -ErrorAction SilentlyContinue)
 
 # Adiciona o Explorador de Arquivos manualmente
 $explorerShortcut = [System.Text.Encoding]::Unicode.GetBytes("%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Explorer.lnk")
