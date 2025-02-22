@@ -40,7 +40,7 @@ $keystrokes = @(
 
 foreach ($key in $keystrokes) {
     [KeyboardSimulator]::PressKey($key)
-	    Start-Sleep -Milliseconds 100  # Intervalo entre os pressionamentos
+	    Start-Sleep -Milliseconds 400  # Intervalo entre os pressionamentos
 }
 
 # Aguarda um pouco antes de finalizar
