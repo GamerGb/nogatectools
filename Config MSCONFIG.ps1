@@ -39,7 +39,7 @@ $keystrokes = @(
     9,     # Tab
     9,     # Tab	
     32,     # Space
-	13 # Enter
+    #13 # Enter
 
 
 )
