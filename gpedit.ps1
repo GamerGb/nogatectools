@@ -25,7 +25,7 @@ Add-Type -TypeDefinition @"
 start gpedit.msc
 
 # Aguarda o tempo necessário para a janela ser carregada
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 6
 
 # Simula a navegação e a seleção
 $keystrokes = @(
