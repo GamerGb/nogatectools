@@ -1,4 +1,4 @@
-# Define funções Win32 para manipulação de janelas
+# Define funções Win32 para manipulação de janelass
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
