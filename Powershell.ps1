@@ -93,31 +93,11 @@ Function DebloatThirdParty {
     }
 }
 
-Function Customize {
-Write-Output "Resetting Taskbar icons to keep only Explorer..."
-
-# Limpa os ícones da barra de tarefas
-#Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Type Binary -Value (mProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesResolve" -ErrorAction SilentlyContinue)
-#Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Type Binary -Value (Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesResolve" -ErrorAction SilentlyContinue).FavoritesResolve
-
-
-# Adiciona o Explorador de Arquivos manualmente
-$explorerShortcut = [System.Text.Encoding]::Unicode.GetBytes("%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Explorer.lnk")
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Type Binary -Value ([byte[]]($explorerShortcut + [byte]0))
-
-Write-Output "Taskbar reset complete. Only Explorer remains."
-
-    # Warning: this command has no counterpart
-#    Write-Output "Unpinning all Taskbar icons..."
-#    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "Favorites" -Type Binary -Value ([byte[]](255))
-#    Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband" -Name "FavoritesResolve" -ErrorAction SilentlyContinue
-}
-
 
 
 
 Function CreateRestorePoint {
-    Write-Host "Creating Restore Point incase something bad happens"
+    Write-Host "Criando ponto de restauração caso algo ruim aconteça"
     Enable-ComputerRestore -Drive "C:\"
     Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
 }
@@ -213,13 +193,6 @@ Function EssentialTweaks {
         Remove-Item $CloudStore -Recurse -Force
     }
 
-    Write-Host "Enabling Ultimate Performance Power Plan..."
-    powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61    
-
-    Write-Host ""
-    Write-Host "Enabling Windows Update on powerShell..."
-    Install-Module PSWindowsUpdate -force
-    Add-WUServiceManager -MicrosoftUpdate
 
     # Windows 11 section
    # Write-Host "Hiding Widgets from Taskbar..."
