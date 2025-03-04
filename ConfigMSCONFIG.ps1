@@ -50,15 +50,15 @@ if ($currentHWND -ne [IntPtr]::Zero) {
 
 # Define os códigos das teclas a serem simuladas
 $keystrokes = @(
-    39,    # Seta Direita
-    39,    # Seta Direita
-    39,    # Seta Direita
-    39,    # Seta Direita
-    39,    # Seta Direita
     9,     # Tab
     9,     # Tab
     9,     # Tab
     9,     # Tab
+    39,    # Seta Direita
+    39,    # Seta Direita
+    9,     # Tab
+    9,     # Tab
+    9,     # Tab    
     32     # Espaço
 )
 
