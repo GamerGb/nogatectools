@@ -5,8 +5,12 @@ using System.Runtime.InteropServices;
 public class Win32 {
     [DllImport("user32.dll")]
     public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
+    
+    [DllImport("user32.dll")]
+    public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 }
 "@
 
@@ -31,15 +35,16 @@ public static class KeyboardSimulator {
 "@
 
 # Inicia o msconfig e obtém o objeto do processo
-$msconfigProc = Start-Process msconfig -PassThru
+$msconfigProc = Start-Process msconfig -PassThru -WindowStyle Normal
 
 # Aguarda o msconfig carregar
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 3
 
-# Tenta trazer a janela do msconfig para o primeiro plano
+# Obtém o identificador da janela do msconfig
 $msconfigHWND = $msconfigProc.MainWindowHandle
 if ($msconfigHWND -ne [IntPtr]::Zero) {
-    [Win32]::SetForegroundWindow($msconfigHWND)
+    [Win32]::SwitchToThisWindow($msconfigHWND, $true)
+    Start-Sleep -Milliseconds 500
 }
 
 # Minimiza a janela atual do script (PowerShell)
