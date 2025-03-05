@@ -1,6 +1,6 @@
 # Nogatec Tools
 
-![Nogatec Tools Banner]([https://via.placeholder.com/1200x200/000000/00FF00?text=Nogatec+Tools](https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/NogatecLogo.ico))
+![Nogatec Tools Banner](https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/NogatecLogo.ico)
 
 **Nogatec Tools** é um script .bat que automatiza o processo de instalação, configuração e atualização de drivers, além de realizar a instalação e ativação do Office e do Windows. O script oferece uma interface gráfica interativa e ajusta configurações automaticamente conforme o sistema operacional.
 
