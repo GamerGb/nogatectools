@@ -5,8 +5,12 @@ using System.Runtime.InteropServices;
 public class Win32 {
     [DllImport("user32.dll")]
     public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
+    
+    [DllImport("user32.dll")]
+    public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 }
 "@
 
@@ -24,6 +28,7 @@ public static class KeyboardSimulator {
     public const int VK_TAB = 0x09;
     public const int VK_DOWN = 0x28;
     public const int VK_SPACE = 0x20;
+    public const int VK_ENTER = 0x0D;
 
     public static void PressKey(int vKey) {
         keybd_event((byte)vKey, 0, 0, UIntPtr.Zero); // Pressiona a tecla
@@ -35,13 +40,23 @@ public static class KeyboardSimulator {
 # Inicia o SystemPropertiesPerformance e captura o objeto do processo
 $perfProc = Start-Process "SystemPropertiesPerformance" -PassThru
 
-# Aguarda alguns segundos para a janela carregar
-Start-Sleep -Seconds 5
+# Aguarda até a janela abrir completamente
+$timeout = 10  # Tempo máximo de espera em segundos
+while ($timeout -gt 0) {
+    $perfHWND = $perfProc.MainWindowHandle
+    if ($perfHWND -ne [IntPtr]::Zero) {
+        break
+    }
+    Start-Sleep -Milliseconds 500
+    $timeout -= 0.5
+}
 
-# Traz a janela do SystemPropertiesPerformance para o primeiro plano
-$perfHWND = $perfProc.MainWindowHandle
+# Se a janela abriu, traz para o primeiro plano
 if ($perfHWND -ne [IntPtr]::Zero) {
-    [Win32]::SetForegroundWindow($perfHWND)
+    [Win32]::ShowWindow($perfHWND, 5)  # 5 = SW_SHOW
+    Start-Sleep -Milliseconds 500
+    [Win32]::SwitchToThisWindow($perfHWND, $true)
+    Start-Sleep -Milliseconds 500
 }
 
 # Minimiza a janela atual do script (PowerShell)
@@ -52,40 +67,18 @@ if ($currentHWND -ne [IntPtr]::Zero) {
 
 # Define os códigos das teclas a serem simuladas
 $keystrokes = @(
-    9,     # Tab
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    32,    # Space
-    40,    # Down
-    40,    # Down
-    32,    # Space
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    40,    # Down
-    32,    # Space
-    40,    # Down
-    32,    # Space
-    9,     # Tab
-    9,     # Tab
-    9,     # Tab
-    32,    # Space
-    32,    # Space
-    13     # Enter
+    9, 40, 40, 40, 40, 40, 40, 40, 40, 32, # Marca "Ajustar para melhor desempenho"
+    40, 40, 32,                            # Marca "Ativar suavização de fontes"
+    40, 40, 40, 40, 40, 40, 40, 32,        # Marca "Mostrar miniaturas em vez de ícones"
+    40, 32,                                # Marca "Usar sombras para rótulos de ícones"
+    9, 9, 9, 32, 32, 13                    # Aplica as alterações e confirma
 )
 
 # Simula os pressionamentos com intervalo entre eles
 foreach ($key in $keystrokes) {
     [KeyboardSimulator]::PressKey($key)
-    Start-Sleep -Milliseconds 100
+    Start-Sleep -Milliseconds 500
 }
 
 # Aguarda um pouco antes de finalizar
-Start-Sleep -Seconds 1
+Start-Sleep -Seconds 3
