@@ -1,12 +1,16 @@
-# Define funções Win32 para manipulação de janelass
+# Define funções Win32 para manipulação de janelas
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
 public class Win32 {
     [DllImport("user32.dll")]
     public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
+    
+    [DllImport("user32.dll")]
+    public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 }
 "@
 
@@ -29,16 +33,26 @@ public static class KeyboardSimulator {
 }
 "@
 
-# Abre o ms-settings:gaming-gamebar e captura o objeto do processo
+# Abre as configurações da Game Bar
 $settingsProc = Start-Process "ms-settings:gaming-gamebar" -PassThru
 
-# Aguarda o tempo necessário para a janela carregar
-Start-Sleep -Seconds 5
+# Aguarda até a janela abrir completamente
+$timeout = 10  # Tempo máximo de espera em segundos
+while ($timeout -gt 0) {
+    $settingsHWND = $settingsProc.MainWindowHandle
+    if ($settingsHWND -ne [IntPtr]::Zero) {
+        break
+    }
+    Start-Sleep -Milliseconds 500
+    $timeout -= 0.5
+}
 
-# Traz a janela do ms-settings para o primeiro plano
-$settingsHWND = $settingsProc.MainWindowHandle
+# Se a janela abriu, traz para o primeiro plano
 if ($settingsHWND -ne [IntPtr]::Zero) {
-    [Win32]::SetForegroundWindow($settingsHWND)
+    [Win32]::ShowWindow($settingsHWND, 5)  # 5 = SW_SHOW
+    Start-Sleep -Milliseconds 500
+    [Win32]::SwitchToThisWindow($settingsHWND, $true)
+    Start-Sleep -Milliseconds 500
 }
 
 # Minimiza a janela do script atual (PowerShell)
@@ -51,9 +65,9 @@ if ($currentHWND -ne [IntPtr]::Zero) {
 $keystrokes = @(
     9,     # Tab
     9,     # Tab	
-    32,    # Space
+    32,    # Space (Desativa a Game Bar)
     9,     # Tab
-    32     # Space
+    32     # Space (Desativa capturas de tela)
 )
 
 # Simula os pressionamentos com intervalo entre eles
@@ -64,4 +78,4 @@ foreach ($key in $keystrokes) {
 
 # Aguarda um pouco antes de finalizar e fecha o Settings
 Start-Sleep -Seconds 1
-Stop-Process -Name 
+Stop-Process -Name "SystemSettings" -Force
