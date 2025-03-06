@@ -1,4 +1,4 @@
-# Define funções Win32 para manipulação de janelas
+# Adiciona a função para manipular janelas usando a biblioteca user32.dll
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -8,11 +8,14 @@ public class Win32 {
     
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
-    
-    [DllImport("user32.dll")]
-    public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 }
 "@
+
+# Traz a janela do PowerShell para o primeiro plano
+$currentHWND = (Get-Process -Id $PID).MainWindowHandle
+if ($currentHWND -ne [IntPtr]::Zero) {
+    [Win32]::SetForegroundWindow($currentHWND)
+}
 
 # Define a classe para simular pressionamento de teclas
 Add-Type -TypeDefinition @"
@@ -55,7 +58,7 @@ while ($timeout -gt 0) {
 if ($perfHWND -ne [IntPtr]::Zero) {
     [Win32]::ShowWindow($perfHWND, 5)  # 5 = SW_SHOW
     Start-Sleep -Milliseconds 500
-    [Win32]::SwitchToThisWindow($perfHWND, $true)
+    [Win32]::SetForegroundWindow($perfHWND)  # Traz para o primeiro plano
     Start-Sleep -Milliseconds 500
 }
 
