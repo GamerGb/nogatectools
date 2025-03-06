@@ -8,9 +8,6 @@ public class Win32 {
     
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
-    
-    [DllImport("user32.dll")]
-    public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 }
 "@
 
@@ -37,13 +34,21 @@ public static class KeyboardSimulator {
 # Inicia o msconfig e obtém o objeto do processo
 $msconfigProc = Start-Process msconfig -PassThru -WindowStyle Normal
 
-# Aguarda o msconfig carregar
-Start-Sleep -Seconds 3
+# Aguarda o msconfig carregar (aguarda até 5 segundos)
+$timeout = 5
+$msconfigHWND = [IntPtr]::Zero
+while ($timeout -gt 0) {
+    $msconfigHWND = $msconfigProc.MainWindowHandle
+    if ($msconfigHWND -ne [IntPtr]::Zero) {
+        break
+    }
+    Start-Sleep -Milliseconds 500
+    $timeout -= 0.5
+}
 
-# Obtém o identificador da janela do msconfig
-$msconfigHWND = $msconfigProc.MainWindowHandle
+# Se a janela estiver carregada, traz para o primeiro plano
 if ($msconfigHWND -ne [IntPtr]::Zero) {
-    [Win32]::SwitchToThisWindow($msconfigHWND, $true)
+    [Win32]::SetForegroundWindow($msconfigHWND)
     Start-Sleep -Milliseconds 500
 }
 
