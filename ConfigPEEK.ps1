@@ -67,17 +67,17 @@ if ($currentHWND -ne [IntPtr]::Zero) {
 
 # Define os códigos das teclas a serem simuladas
 $keystrokes = @(
-    9, 40, 40, 40, 40, 40, 40, 40, 40, 32, # Marca "Ajustar para melhor desempenho"
+    9, 40, 40, 40, 40, 40, 40, 40, 32, # Marca "Ajustar para melhor desempenho"
     40, 40, 32,                            # Marca "Ativar suavização de fontes"
-    40, 40, 40, 40, 40, 40, 40, 32,        # Marca "Mostrar miniaturas em vez de ícones"
+    40, 40, 40, 40, 40, 40, 32,        # Marca "Mostrar miniaturas em vez de ícones"
     40, 32,                                # Marca "Usar sombras para rótulos de ícones"
-    9, 9, 9, 32, 32, 13                    # Aplica as alterações e confirma
+    9, 13                    # Aplica as alterações e confirma
 )
 
 # Simula os pressionamentos com intervalo entre eles
 foreach ($key in $keystrokes) {
     [KeyboardSimulator]::PressKey($key)
-    Start-Sleep -Milliseconds 500
+    Start-Sleep -Milliseconds 300
 }
 
 # Aguarda um pouco antes de finalizar
