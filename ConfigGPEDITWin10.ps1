@@ -25,6 +25,7 @@ public static class KeyboardSimulator {
     public const int VK_TAB = 0x09;
     public const int VK_DOWN = 0x28;
     public const int VK_SPACE = 0x20;
+    public const int VK_ENTER = 0x0D;
 
     public static void PressKey(int vKey) {
         keybd_event((byte)vKey, 0, 0, UIntPtr.Zero); // Press key
@@ -33,17 +34,6 @@ public static class KeyboardSimulator {
 }
 "@
 
-# Abre o gpedit.msc e captura o objeto do processo
-$gpeditProc = Start-Process "gpedit.msc" -PassThru
-
-# Aguarda o tempo necessário para a janela carregar
-Start-Sleep -Seconds 6
-
-# Traz a janela do gpedit para o primeiro plano
-$gpeditHWND = $gpeditProc.MainWindowHandle
-if ($gpeditHWND -ne [IntPtr]::Zero) {
-    [Win32]::SetForegroundWindow($gpeditHWND)
-}
 
 # Minimiza a janela atual do script (PowerShell)
 $currentHWND = (Get-Process -Id $PID).MainWindowHandle
@@ -51,8 +41,30 @@ if ($currentHWND -ne [IntPtr]::Zero) {
     [Win32]::ShowWindow($currentHWND, 2)  # 2 = SW_MINIMIZE
 }
 
-# Define os códigos das teclas a serem simuladas
+# Abre o gpedit.msc e captura o objeto do processo
+$gpeditProc = Start-Process "gpedit.msc" -PassThru
+
+# Aguarda até que a janela do gpedit seja carregada
+$gpeditHWND = $null
+while ($gpeditHWND -eq $null) {
+    Start-Sleep -Milliseconds 500
+    $gpeditHWND = $gpeditProc.MainWindowHandle
+}
+
+# Traz a janela do gpedit para o primeiro plano
+if ($gpeditHWND -ne [IntPtr]::Zero) {
+    [Win32]::SetForegroundWindow($gpeditHWND)
+}
+
+# Simula os pressionamentos de teclas com intervalo entre eles
 $keystrokes = @(
-    40,    # Down
-    40,    # Down
-    40,    
+    9,     # Tab
+    13     # Enter
+)
+
+foreach ($key in $keystrokes) {
+    [KeyboardSimulator]::PressKey($key)
+    Start-Sleep -Milliseconds 600
+}
+
+Start-Sleep -Seconds 1
