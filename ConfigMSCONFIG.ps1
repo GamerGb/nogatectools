@@ -23,6 +23,7 @@ public static class KeyboardSimulator {
     public const int VK_RIGHT = 0x27;
     public const int VK_TAB   = 0x09;
     public const int VK_SPACE = 0x20;
+    public const int VK_ENTER = 0x0D;
 
     public static void PressKey(int vKey) {
         keybd_event((byte)vKey, 0, 0, UIntPtr.Zero); // Pressiona a tecla
@@ -34,9 +35,8 @@ public static class KeyboardSimulator {
 # Inicia o msconfig e obtém o objeto do processo
 $msconfigProc = Start-Process msconfig -PassThru -WindowStyle Normal
 
-# Aguarda o msconfig carregar (aguarda até 5 segundos)
-$timeout = 5
-$msconfigHWND = [IntPtr]::Zero
+# Aguarda o msconfig carregar (aguarda até 10 segundos)
+$timeout = 10
 while ($timeout -gt 0) {
     $msconfigHWND = $msconfigProc.MainWindowHandle
     if ($msconfigHWND -ne [IntPtr]::Zero) {
@@ -48,6 +48,8 @@ while ($timeout -gt 0) {
 
 # Se a janela estiver carregada, traz para o primeiro plano
 if ($msconfigHWND -ne [IntPtr]::Zero) {
+    [Win32]::ShowWindow($msconfigHWND, 5)  # 5 = SW_SHOW
+    Start-Sleep -Milliseconds 500
     [Win32]::SetForegroundWindow($msconfigHWND)
     Start-Sleep -Milliseconds 500
 }
@@ -60,22 +62,23 @@ if ($currentHWND -ne [IntPtr]::Zero) {
 
 # Define os códigos das teclas a serem simuladas
 $keystrokes = @(
-    9,     # Tab
-    9,     # Tab
-    9,     # Tab
-    9,     # Tab
-    39,    # Seta Direita
-    39,    # Seta Direita
-    9,     # Tab
-    9,     # Tab
-    9,     # Tab    
-    32     # Espaço
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_RIGHT,
+    [KeyboardSimulator]::VK_RIGHT,
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_TAB,
+    [KeyboardSimulator]::VK_SPACE,
+    [KeyboardSimulator]::VK_ENTER
 )
 
 # Simula os pressionamentos com intervalo entre eles
 foreach ($key in $keystrokes) {
     [KeyboardSimulator]::PressKey($key)
-    Start-Sleep -Milliseconds 600
+    Start-Sleep -Milliseconds 300
 }
 
-Start-Sleep -Seconds 1
+Start-Sleep -Seconds 2
