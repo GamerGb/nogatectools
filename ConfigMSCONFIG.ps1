@@ -32,25 +32,33 @@ public static class KeyboardSimulator {
 }
 "@
 
-# Inicia o msconfig e obtém o objeto do processo
-$msconfigProc = Start-Process msconfig -PassThru -WindowStyle Normal
+# Inicia o gpedit.msc e obtém os objetos dos processos
+$gpeditProc = Start-Process gpedit.msc -PassThru -WindowStyle Normal
+$mmcProc = Get-Process mmc -ErrorAction SilentlyContinue
 
-# Aguarda o msconfig carregar (aguarda até 10 segundos)
+# Aguarda até que a janela do gpedit.msc (processo mmc) seja carregada (aguarda até 10 segundos)
 $timeout = 10
 while ($timeout -gt 0) {
-    $msconfigHWND = $msconfigProc.MainWindowHandle
-    if ($msconfigHWND -ne [IntPtr]::Zero) {
-        break
+    $gpeditHWND = $gpeditProc.MainWindowHandle
+    if ($gpeditHWND -eq [IntPtr]::Zero -and $mmcProc) {
+        # Procura a janela do mmc
+        $mmcHWND = $mmcProc.MainWindowHandle
+        if ($mmcHWND -ne [IntPtr]::Zero) {
+            break
+        }
     }
     Start-Sleep -Milliseconds 500
     $timeout -= 0.5
 }
 
 # Se a janela estiver carregada, traz para o primeiro plano
-if ($msconfigHWND -ne [IntPtr]::Zero) {
-    [Win32]::ShowWindow($msconfigHWND, 5)  # 5 = SW_SHOW
+if ($gpeditHWND -ne [IntPtr]::Zero -or $mmcHWND -ne [IntPtr]::Zero) {
+    # Prioriza o mmc.exe se ambos os processos estiverem disponíveis
+    $hwndToUse = if ($mmcHWND -ne [IntPtr]::Zero) { $mmcHWND } else { $gpeditHWND }
+    
+    [Win32]::ShowWindow($hwndToUse, 5)  # 5 = SW_SHOW
     Start-Sleep -Milliseconds 500
-    [Win32]::SetForegroundWindow($msconfigHWND)
+    [Win32]::SetForegroundWindow($hwndToUse)
     Start-Sleep -Milliseconds 500
 }
 
