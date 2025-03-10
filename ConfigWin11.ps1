@@ -35,6 +35,10 @@ Function DebloatMS {
         "Microsoft.ZuneMusic"
         "Microsoft.ZuneVideo"
         "*Microsoft.BingWeather*"
+	"Microsoft.OutlookNew"
+        "Microsoft.WindowsCopilot"       
+        "Microsoft.WindowsCommentsHub"   
+        "Microsoft.People"
     )
     Write-Host "Removendo Apps Microsoft Store..."
     foreach ($Bloat in $Bloatware) {
