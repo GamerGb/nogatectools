@@ -34,12 +34,12 @@ public static class KeyboardSimulator {
 "@
 
 # Abre as configurações da Game Bar
-$settingsProc = Start-Process "ms-settings:gaming-gamebar" -PassThru
+$settingsProc = Start-Process "ms-settings:gaming-gamebar" -PassThru -WindowStyle Normal
 
 # Aguarda até a janela abrir completamente
 $timeout = 10  # Tempo máximo de espera em segundos
 while ($timeout -gt 0) {
-    $settingsHWND = $settingsProc.MainWindowHandle
+    $settingsHWND = (Get-Process -Name "SystemSettings" -ErrorAction SilentlyContinue | Select-Object -First 1).MainWindowHandle
     if ($settingsHWND -ne [IntPtr]::Zero) {
         break
     }
@@ -53,6 +53,7 @@ if ($settingsHWND -ne [IntPtr]::Zero) {
     Start-Sleep -Milliseconds 500
     [Win32]::SwitchToThisWindow($settingsHWND, $true)
     Start-Sleep -Milliseconds 500
+    [Win32]::SetForegroundWindow($settingsHWND)
 }
 
 # Minimiza a janela do script atual (PowerShell)
@@ -63,11 +64,11 @@ if ($currentHWND -ne [IntPtr]::Zero) {
 
 # Define os códigos das teclas a serem simuladas
 $keystrokes = @(
-    9,     # Tab
-    9,     # Tab	
-    32,    # Space (Desativa a Game Bar)
-    9,     # Tab
-    32     # Space (Desativa capturas de tela)
+    [KeyboardSimulator]::VK_TAB,  # Tab
+    [KeyboardSimulator]::VK_TAB,  # Tab	
+    [KeyboardSimulator]::VK_SPACE, # Space (Desativa a Game Bar)
+    [KeyboardSimulator]::VK_TAB,  # Tab
+    [KeyboardSimulator]::VK_SPACE  # Space (Desativa capturas de tela)
 )
 
 # Simula os pressionamentos com intervalo entre eles
