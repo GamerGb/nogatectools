@@ -100,11 +100,11 @@ Function DebloatThirdParty {
 
 
 
-Function CreateRestorePoint {
-    Write-Host "Criando ponto de restauração caso algo ruim aconteça"
-    Enable-ComputerRestore -Drive "C:\"
-    Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
-}
+# Function CreateRestorePoint {
+#     Write-Host "Criando ponto de restauração caso algo ruim aconteça"
+#     Enable-ComputerRestore -Drive "C:\"
+#     Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
+# }
 
 Function EssentialTweaks {
     Write-Host "Desativando Telemetria..."
@@ -440,7 +440,7 @@ Write-Host "Tema e cores configurados com sucesso!"
 
 
 # Main function invocation
-CreateRestorePoint;
+# CreateRestorePoint;
 EssentialTweaks;
 DisableServices;
 DisableScheduledTasks;
