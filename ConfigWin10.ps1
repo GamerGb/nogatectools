@@ -99,13 +99,6 @@ Function DebloatThirdParty {
 
 
 
-
-Function CreateRestorePoint {
-    Write-Host "Criando ponto de restauração caso algo ruim aconteça"
-    Enable-ComputerRestore -Drive "C:\"
-    Checkpoint-Computer -Description "Nogatec" -RestorePointType "MODIFY_SETTINGS"
-}
-
 Function EssentialTweaks {
     Write-Host "Desativando Telemetria..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
@@ -438,9 +431,7 @@ Write-Host "Tema e cores configurados com sucesso!"
 }
 
 
-
 # Main function invocation
-CreateRestorePoint;
 EssentialTweaks;
 DisableServices;
 DisableScheduledTasks;
