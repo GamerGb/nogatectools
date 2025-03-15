@@ -110,7 +110,7 @@ echo                ║                          Instalação de Programas      
 echo                ║════════════════════════════════════════════════════════════════════════════║
 echo                ║     1 - Básica (Aplicativos Essenciais + Ativação + Office 2021)           ║
 echo                ║     2 - Jogos (Básica + Drivers e Ferramentas para Games)                  ║
-echo                ║     %BRED%%BLACK%3 - Design (Básica + Ferramentas de Design)%RESET%                            ║
+echo                ║     %BRED%%BLACK%3 - Design (Básica + Drivers e Ferramentas de Design)%RESET%                  ║
 echo                ║     4 - Teracopy                                                           ║
 echo                ║     5 - Ativações                                                          ║
 echo                ║     %BRED%%BLACK%6 - Programas Torrents%RESET%                                                 ║
@@ -126,7 +126,7 @@ if "%install_choice%"=="2" goto MENU_INSTALACAO_GAMER
 if "%install_choice%"=="" goto MENU_INSTALACAO_DESIGN
 if "%install_choice%"=="4" goto MENU_INSTALACAO_TERACOPY
 if "%install_choice%"=="5" goto MENU_INSTALACAO_WINDOWS
-if "%install_choice%"=="" goto MENU_INSTALACAO_TORRENTS
+if "%install_choice%"=="6" goto MENU_INSTALACAO_TORRENTS
 if "%install_choice%"=="7" goto MENU
 goto MENU_INSTALACAO
 
@@ -146,15 +146,45 @@ powercfg -change -standby-timeout-dc 0
 powercfg -change -hibernate-timeout-ac 0
 powercfg -change -hibernate-timeout-dc 0
 
-call :Depend
-echo %BRED%%BLACK%Deseja instalar as dependências? (S/N) %RESET%
-set /p resposta=
-if /I "%resposta%"=="S" (
+
+rem INPUT BOX
+:: Abre uma caixa de entrada para o usuário digitar um conteúdo
+:: for /f "delims=" %%a in ('powershell -Command "Add-Type -AssemblyName Microsoft.VisualBasic; [Microsoft.VisualBasic.Interaction]::InputBox('Digite o conteúdo:', 'Entrada de Texto', 'Valor padrão')"') do set resultado=%%a
+:: echo O conteúdo digitado foi: %resultado%
+:: pause
+
+rem SIM OU NAO BOX
+:: setlocal
+:: Exibe a caixa de mensagem usando System.Windows.Forms
+:: powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $result = [System.Windows.Forms.MessageBox]::Show('Deseja continuar?', 'Confirmação', [System.Windows.Forms.MessageBoxButtons]::YesNo); if ($result -eq [System.Windows.Forms.DialogResult]::Yes) { exit 1 } else { exit 0 }"
+:: if %ERRORLEVEL%==1 (
+::     echo Você escolheu SIM.
+:: ) else (
+::     echo Você escolheu NÃO.
+:: )
+
+
+
+rem MESSAGEBOX
+:: setlocal
+:: Exibe a caixa de mensagem com apenas o botão OK
+:: powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $result = [System.Windows.Forms.MessageBox]::Show('Operação confirmada!', 'Confirmação', [System.Windows.Forms.MessageBoxButtons]::OK); if ($result -eq [System.Windows.Forms.DialogResult]::OK) { exit 1 } else { exit 0 }"
+:: if %ERRORLEVEL%==1 (
+::    echo Você confirmou a ação.
+:: ) else (
+::     echo Nenhuma ação foi confirmada.
+:: )
+
+
+
+
+powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $result = [System.Windows.Forms.MessageBox]::Show('Deseja instalar as dependências?', 'Confirmação', [System.Windows.Forms.MessageBoxButtons]::YesNo); if ($result -eq [System.Windows.Forms.DialogResult]::Yes) { exit 1 } else { exit 0 }"
+if %ERRORLEVEL%==1 (
     rem Coloque aqui os comandos para instalar as dependências
     call :Depend
     rem Exemplo: call instalar_dependencias.bat
 ) else (
-	echo %BRED%%BLACK%As dependências não foram instaladas! %RESET%
+    echo %BBLUE%%BLACK%As dependências não serão instaladas! %RESET%
 )
 
 rem Baixar Aplicativos usando Curl
@@ -164,13 +194,13 @@ if %ERRORLEVEL% NEQ 0 (
     echo %BRED%%BLACK%Instalando cURL... %RESET%
     winget install --id=cURL.cURL -e --accept-source-agreements --accept-package-agreements
     if %ERRORLEVEL% NEQ 0 (
-        echo %BRED%%BLACK%Falha ao instalar o cURL.%RESET%
+        echo %BBLUE%%BLACK%Falha ao instalar o cURL.%RESET%
         pause
         goto :MENU
     )
     echo %BGREEN%%BLACK%cURL instalado com sucesso! %RESET%
 ) else (
-    echo %BBLUE%%BLACK%cURL já está instalado! %RESET%
+    echo %BGREEN%%BLACK%cURL já está instalado! %RESET%
 )
 
 rem Definir variáveis de pasta e arquivos
@@ -178,68 +208,81 @@ set "pasta_instalacao=%USERPROFILE%\Desktop\Nova Pasta"
 set "pasta_office=%pasta_instalacao%\Office 2021"
 set "pasta_aact=%pasta_instalacao%\AAct_Network_x64"
 set "arquivo_rar=%pasta_instalacao%\Arquivos.rar"
-set "pasta_windef=%pasta_instalacao%\WinDef.rar"
-set "link_dropbox=https://www.dropbox.com/s/srq8d8rpx6ey81o/Arquivos.rar?st=csgcgone&dl=1"
+set "arquivo_windef=%pasta_instalacao%\WinDef.rar"
+set "pasta_windef=%pasta_instalacao%\WinDef\"
+set "link_dropbox=https://www.dropbox.com/s/geisbvplfws907e/Arquivos.rar?st=7d958qjl&dl=1" 
 
 rem Verifica se a pasta de instalação já existe, caso contrário cria
 if not exist "%pasta_instalacao%" (
     echo %BRED%%BLACK%Criando pasta da instalação dos programas...%RESET%
     md "%pasta_instalacao%" >nul 2>&1
         echo %BGREEN%%BLACK%Pasta criada com sucesso! %RESET%
-
 )
 
 ping -n 2 127.0.0.1 > nul
+
 rem Baixando o arquivo Arquivos.rar
 echo %BRED%%BLACK%Baixando o arquivo Arquivos.rar... %RESET%
 curl -L -o "%arquivo_rar%" "%link_dropbox%"
 if %ERRORLEVEL% NEQ 0 (
-    echo %BRED%%BLACK%Falha ao baixar o arquivo Arquivos.rar.%RESET%
+    echo %BBLUE%%BLACK%Falha ao baixar o arquivo Arquivos.rar.%RESET%
     pause
-        goto :MENU
-)
+    goto :MENU
+) else (
 echo %BGREEN%%BLACK%Arquivo Arquivos.rar baixado com sucesso! %RESET%
+)
 
 ping -n 5 127.0.0.1 > nul
-rem Verifica se o WinRAR está instalado
-if exist "C:\Program Files\WinRAR\WinRAR.exe" (
-    echo %BGREEN%%BLACK%WinRAR já está instalado, prosseguindo...%RESET%
-) else (
-    echo %BRED%%BLACK%WinRAR não foi encontrado. Iniciando sua instalação...%RESET%
-    winget install --id=WinRAR.WinRAR -e --source winget
-    if %ERRORLEVEL% NEQ 0 (
-        echo %BRED%%BLACK%Falha ao instalar o WinRAR.%RESET%
-        pause
-        goto :MENU
-    )
-    echo %BGREEN%%BLACK%WinRAR instalado com sucesso!%RESET%
-	
-)
+winget install --id=RARLab.WinRAR -e --accept-source-agreements --accept-package-agreements
+ping -n 5 127.0.0.1 > nul
 
 echo %BRED%%BLACK%Abrindo painel do Windows Defender, por favor, desativa-lo...%RESET%
 start windowsdefender://threat
 pause
 
+
 rem Extraindo Defender Blocker para desativar o Defender
 if exist "%pasta_instalacao%\WinDef.rar" (
     echo %BRED%%BLACK%Extraindo WinDef.rar...%RESET%
-    md "%pasta_office%" >nul 2>&1
-    "C:\Program Files\WinRAR\WinRAR.exe" x -y -o+ "%pasta_instalacao%\WinDef.rar" "%pasta_windef%\" 
+    "C:\Program Files\WinRAR\WinRAR.exe" x -y -o+ "%pasta_instalacao%\WinDef.rar" "%pasta_windef%\"
     if %ERRORLEVEL% NEQ 0 (
         echo %BBLUE%%BLACK%Falha ao extrair o arquivo WinDef.rar.%RESET%
         pause
-        goto :MENU
+    ) else (
+        echo %BGREEN%%BLACK%Defender Control extraído com sucesso! %RESET%
+        echo %BRED%%BLACK%Abrindo Defender Control...%RESET%
+        :: powershell -Command "Start-Process '%pasta_windef%\WinDef\dControl.exe' -Verb runAs"
+		start "" "%pasta_windef%\WinDef\dControl.exe"
+        echo %BGREEN%%BLACK%Defender Control aberto com sucesso! %RESET%
+		pause
     )
-    echo %BGREEN%%BLACK%Defender Control extraído com sucesso! %RESET%
-	echo %BRED%%BLACK%Abrindo Defender Control...%RESET%
-	start %pasta_instalacao%\WinDef\dControl.exe
-	echo %BGREEN%%BLACK%Defender Control aberto com sucesso! %RESET%
 ) else (
-    echo %BRED%%BLACK%Arquivo WinDef.rar não encontrado.%RESET%
+    echo %BBLUE%%BLACK%Arquivo WinDef.rar não encontrado.%RESET%
 )
 
 ping -n 5 127.0.0.1 > nul
 
+rem Extraindo Arquivos.rar para a pasta de instalação
+echo %BRED%%BLACK%Extraindo Arquivos.rar...%RESET%
+"C:\Program Files\WinRAR\WinRAR.exe" x -y -o+ "%arquivo_rar%" "%pasta_instalacao%\" 
+if %ERRORLEVEL% NEQ 0 (
+    echo %BBLUE%%BLACK%Falha ao extrair o arquivo Arquivos.rar.%RESET%
+    pause
+    goto :MENU
+) else (
+echo %BGREEN%%BLACK%Arquivos RAR extraídos com sucesso! %RESET%
+)
+
+ping -n 5 127.0.0.1 > nul
+
+echo %BRED%%BLACK%Copiando Wallpaper para a raiz do C:...%RESET%
+copy "%pasta_instalacao%\Wallpaper.jpg" C:\ >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo %BRED%%BLACK%Falha ao copiar o Wallpaper.%RESET%
+) else (
+    echo %BGREEN%%BLACK%Wallpaper copiado com sucesso! %RESET%
+)
+ping -n 3 127.0.0.1 > nul
 
 rem Instalação dos Programas: Firefox, Chrome, K-LiteCodecPack Full, Skype, Winrar, Adobe Acrobat Reader, AnyDesk e Java
 echo %BRED%%BLACK%Instalando Programas...%RESET%
@@ -254,7 +297,7 @@ winget install --id=CodecGuide.K-LiteCodecPack.Full -e --accept-source-agreement
 ping -n 6 127.0.0.1 > nul
 winget install --id=Adobe.Acrobat.Reader.64-bit -e --accept-source-agreements --accept-package-agreements  
 ping -n 6 127.0.0.1 > nul
-winget install --id=AnyDesk.AnyDesk -e --accept-source-agreements --accept-package-agreements  
+winget install --id=AnyDesk.AnyDesk -e --accept-source-agreements --accept-package-agreements 
 ping -n 6 127.0.0.1 > nul
 winget install --id=Microsoft.Skype -e --accept-source-agreements --accept-package-agreements
 ping -n 8 127.0.0.1 > nul 
@@ -264,15 +307,26 @@ ping -n 6 127.0.0.1 > nul
 winget install --id=Oracle.JavaRuntimeEnvironment -e --accept-source-agreements --accept-package-agreements
 ping -n 6 127.0.0.1 > nul
 
+:: Verifica se está instalado
+wmic product where "Name like 'Adobe Acrobat Reader%%'" get Name | find /i "Adobe Acrobat Reader" >nul
+if %errorlevel%==0 (
+    echo Adobe Acrobat Reader instalado com sucesso!
+) else (
+    echo Falha na instalação do Adobe Acrobat Reader.
+	curl -o "%temp%\AcrobatReader.exe" "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2400220391/AcroRdrDCx642400220391_MUI.exe"
+	start /wait %temp%\AcrobatReader.exe /sAll /rs /msi EULA_ACCEPT=YES
+	del %temp%\AcrobatReader.exe
+)
+
 rem Extraindo Arquivos.rar para a pasta de instalação
 echo %BRED%%BLACK%Extraindo Arquivos.rar...%RESET%
 "C:\Program Files\WinRAR\WinRAR.exe" x -y -o+ "%arquivo_rar%" "%pasta_instalacao%\" 
 if %ERRORLEVEL% NEQ 0 (
-    echo %BRED%%BLACK%Falha ao extrair o arquivo Arquivos.rar.%RESET%
-    pause
-        goto :MENU
-)
+    echo %BBLUE%%BLACK%Falha ao extrair o arquivo Arquivos.rar.%RESET%
+    pause    
+) else (
 echo %BGREEN%%BLACK%Arquivos RAR extraídos com sucesso! %RESET%
+)
 
 ping -n 5 127.0.0.1 > nul
 
@@ -303,38 +357,16 @@ if exist "%pasta_instalacao%\Office 2021.rar" (
     if %ERRORLEVEL% NEQ 0 (
         echo %BRED%%BLACK%Falha ao extrair o arquivo Office 2021.rar.%RESET%
         pause
-        goto :MENU
-    )
+        
+    ) else (
     echo %BGREEN%%BLACK%Office 2021 extraído com sucesso! %RESET%
+	)
 ) else (
     echo %BRED%%BLACK%Arquivo Office 2021.rar não encontrado.%RESET%
 )
 
 ping -n 5 127.0.0.1 > nul
 
-rem Extraindo o AAct_Network_x64.rar para a pasta "AAct_Network_x64"
-rem if exist "%pasta_instalacao%\AAct_Network_x64.rar" (
-rem    echo %BRED%%BLACK%Extraindo AAct_Network_x64.rar...%RESET%
-rem    md "%pasta_aact%" >nul 2>&1
-rem    "C:\Program Files\WinRAR\WinRAR.exe" x -y -o+ "%pasta_instalacao%\AAct_Network_x64.rar" "%pasta_aact%\" 
-rem    if %ERRORLEVEL% NEQ 0 (
-rem        echo %BRED%%BLACK%Falha ao extrair o arquivo AAct_Network_x64.rar.%RESET%
-rem        pause
-rem        goto :MENU
-rem    )
-rem    echo %BGREEN%%BLACK%AAct_Network_x64 extraído com sucesso! %RESET%
-rem ) else (
-rem    echo %BRED%%BLACK%Arquivo AAct_Network_x64.rar não encontrado.%RESET%
-rem )
-rem ping -n 10 127.0.0.1 > nul
-rem Desativar Anti virus
-rem echo %BRED%%BLACK%Pressione qualquer tecla para abrir o menu do Windows Defender%RESET%
-rem pause >nul
-rem start windowsdefender://threat/
-rem echo %BGREEN%%BLACK%Menu aberto com sucesso! %RESET%
-rem timeout /t 2 /nobreak
-
-rem Extraindo Arquivos RAR
 
 echo %BRED%%BLACK%Iniciando a instalação do Office... %RESET%
 "%USERPROFILE%\Desktop\Nova Pasta\Office 2021\Office 2013-2021 C2R Install v7.3.6\OInstall.exe" /configure "%USERPROFILE%\Desktop\Nova Pasta\Office 2021\Office 2013-2021 C2R Install v7.3.6\files\Configure.xml" /wait
@@ -346,59 +378,31 @@ powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) 
 echo %BGREEN%%BLACK%Office ativado com sucesso! %RESET%
 ping -n 10 127.0.0.1 > nul
 
-rem Coletando informações se o windows está ativado
+echo %BRED%%BLACK%Coletando informações do Windows... %RESET%
+echo %BRED%%BLACK%Checando se possui licença instalada... %RESET%
+rem Coletando informações sobre o status da ativação e a chave instalada
 for /f %%A in ('powershell -command "(Get-CimInstance -ClassName SoftwareLicensingProduct | Where-Object { $_.Name -like '*Windows*' -and $_.PartialProductKey } | Select-Object -First 1 -ExpandProperty LicenseStatus)"') do (
     set "status=%%A"
 )
-echo %BRED%%BLACK%Coletando informações do Windows... %RESET%
-echo %BRED%%BLACK%Checando se possui licença instalada... %RESET%
-if "%status%"=="1" (
-	echo %BBLUE%%BLACK%Windows já está ativado! %RESET%
-) else if "%status%"=="2" (
-	echo %BBLUE%%BLACK%Chave do produto instalada, porém não foi ativado. %RESET%
-	echo %BRED%%BLACK%Iniciando ativação... %RESET%
-		ping -n 5 127.0.0.1 > nul
-		powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID-NoEditionChange /S"
-	echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
-) else if "%status%"=="3" (
-		echo %BRED%%BLACK%Iniciando a ativação do Windows... %RESET%
-		ping -n 5 127.0.0.1 > nul
-		powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID-NoEditionChange /S"
-		echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
-) else if "%status%"=="4" (
-		echo %BRED%%BLACK%Iniciando a ativação do Windows... %RESET%
-		ping -n 5 127.0.0.1 > nul
-		powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID-NoEditionChange /S"
-		echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
-) else if "%status%"=="5" (
-		echo %BRED%%BLACK%Iniciando a ativação do Windows... %RESET%
-		ping -n 5 127.0.0.1 > nul
-		powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID-NoEditionChange /S"
-		echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
-) else (
-		echo %BRED%%BLACK%Iniciando a ativação do Windows... %RESET%
-		ping -n 5 127.0.0.1 > nul
-		powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID-NoEditionChange /S"
-		echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
+rem Verificando se há uma chave de produto válida instalada
+for /f %%B in ('powershell -command "(Get-CimInstance -ClassName SoftwareLicensingProduct | Where-Object { $_.Name -like '*Windows*' -and $_.LicenseStatus -eq 1 } | Select-Object -First 1 -ExpandProperty PartialProductKey)"') do (
+    set "productKey=%%B"
 )
+rem Se o status for 1 (ativado) ou já houver uma chave válida, não ativa novamente
+if "%status%"=="1" (
+    echo %BBLUE%%BLACK%Windows já está ativado! %RESET%
+) else if defined productKey (
+    echo %BBLUE%%BLACK%Chave de produto instalada. Não será necessário a ativação digital.%RESET%
+) else (
+    rem Se não houver chave válida, ativa com a licença digital
+    echo %BRED%%BLACK%Iniciando a ativação do Windows... %RESET%
+    ping -n 5 127.0.0.1 > nul
+    powershell -Command "& ([ScriptBlock]::Create((irm https://get.activated.win))) /HWID-NoEditionChange /S"
+    echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
+)
+
 
 ping -n 10 127.0.0.1 > nul
-rem echo %BRED%%BLACK%Iniciando a ativação do Windows... %RESET%
-rem start "" "%USERPROFILE%\Desktop\Nova Pasta\AAct_Network_x64\AAct_Network_x64.exe" /wingvlk /wait
-rem timeout /t 30 /nobreak
-rem start "" "%USERPROFILE%\Desktop\Nova Pasta\AAct_Network_x64\AAct_Network_x64.exe" /win=act /wait
-rem timeout /t 30 /nobreak
-rem echo %BGREEN%%BLACK%Windows ativado com sucesso! %RESET%
-
-echo %BRED%%BLACK%Copiando Wallpaper para a raiz do C:...%RESET%
-copy "%pasta_instalacao%\Wallpaper.jpg" C:\ >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo %BRED%%BLACK%Falha ao copiar o Wallpaper.%RESET%
-) else (
-    echo %BGREEN%%BLACK%Wallpaper copiado com sucesso! %RESET%
-)
-ping -n 3 127.0.0.1 > nul
-
 echo %BBLUE%%BLACK%Instalação Básica concluída. %RESET%
 pause
 goto MENU_INSTALACAO
@@ -485,7 +489,7 @@ set "pasta_office=%pasta_instalacao%\Office 2021"
 set "pasta_aact=%pasta_instalacao%\AAct_Network_x64"
 set "arquivo_rar=%pasta_instalacao%\Arquivos.rar"
 set "pasta_windef=%pasta_instalacao%\WinDef"
-set "link_dropbox=https://www.dropbox.com/s/srq8d8rpx6ey81o/Arquivos.rar?st=csgcgone&dl=1"
+set "link_dropbox=https://www.dropbox.com/s/geisbvplfws907e/Arquivos.rar?st=7d958qjl&dl=1"
 
 rem Verifica se a pasta de instalação já existe, caso contrário cria
 if not exist "%pasta_instalacao%" (
@@ -502,7 +506,6 @@ curl -L -o "%arquivo_rar%" "%link_dropbox%"
 if %ERRORLEVEL% NEQ 0 (
     echo %BRED%%BLACK%Falha ao baixar o arquivo Arquivos.rar.%RESET%
     pause
-        goto :MENU
 )
 echo %BGREEN%%BLACK%Arquivo Arquivos.rar baixado com sucesso! %RESET%
 
@@ -516,9 +519,9 @@ if exist "C:\Program Files\WinRAR\WinRAR.exe" (
     if %ERRORLEVEL% NEQ 0 (
         echo %BRED%%BLACK%Falha ao instalar o WinRAR.%RESET%
         pause
-        goto :MENU
-    )
-    echo %BGREEN%%BLACK%WinRAR instalado com sucesso!%RESET%
+    ) else (
+    echo %BGREEN%%BLACK%WinRAR instalado com sucesso! %RESET%
+	)
 )
 
 ping -n 5 127.0.0.1 > nul
@@ -679,21 +682,25 @@ pause
 goto MENU_INSTALACAO
 
 :MENU_INSTALACAO_TERACOPY
-
 :: Baixe o arquivo do link fornecido para a pasta Downloads
 curl -L -o "%USERPROFILE%\Downloads\TeraCopy.rar" "https://www.dropbox.com/scl/fo/2klf9ms8shwm5wo2n6bfm/ACsI_uP2igyDEYRXArFuupU?rlkey=j2j19w2kzp94qu8nwqudjtyhn&st=r18biotz&dl=1"
-
 :: Extraia o conteúdo do arquivo baixado para a pasta Downloads (supondo que WinRAR esteja instalado)
 "%ProgramFiles%\WinRAR\WinRAR.exe" x -y -o+ "%USERPROFILE%\Downloads\TeraCopy.rar" "%USERPROFILE%\Downloads\TeraCopy_Extracted\"
-
 :: Instale o TeraCopy de forma silenciosa
 start "" "%USERPROFILE%\Downloads\TeraCopy_Extracted\teracopy.exe" /silent /wait
-
-
 ping -n 20 127.0.0.1 > nul
 :: Copie o arquivo de licença para %AppData%\TeraCopy (ajuste se necessário)
-copy "%USERPROFILE%\Downloads\TeraCopy_Extracted\license" "%AppData%\TeraCopy\license" /Y
-
+xcopy "%USERPROFILE%\Downloads\TeraCopy_Extracted\license" "%AppData%\TeraCopy\" /Y
+if errorlevel 1 (
+    echo %BBLUE%%BLACK%Erro ao copiar o arquivo de licença. %RESET%
+	echo|set /p=LVUWAASAAAQiZVYo1qgEjzEgz/SJHjP6eKs3QeQscXDwt2ZfS6gcS1jufZrn47Wv ul9345mlg/wka6nQzRPcvk5sB6O2L0xCgOu7BPgGfhz4dV9NnjxLqUvrKGOWxg2j 7ZpxO+Kn0hRcMynPksvmHNMw/2h5LEmMq+mouuOD5cxJelNPC8FPJXerpf3tqFHQ Q/sqNB1hTiXfuHNijVe9GB9egrXVevmn1LqAesqOU+uHoBql9e47C5eV3KOVjVEt DHFK5x3yXpA8dIwzf9xw7LZkqNFcPaZHWlcvSYxUNPf4VY4+O2/Taqj8OrvM7LrM jp5Z0Jf75M859gYplFU7rlNKxiQ7l/rBLYn2ZAZwSWt4a4VleQcEwKrCGeKvpT/p f0oYAgkMXXklHS58TQVIqWP2EVwlGUi4<nul | clip
+    pause
+    goto MENU_INSTALACAO
+) else (
+    echo %BGREEN%%BLACK%Teracopy instalado e ativado com sucesso! %RESET%
+	echo|set /p=LVUWAASAAAQiZVYo1qgEjzEgz/SJHjP6eKs3QeQscXDwt2ZfS6gcS1jufZrn47Wv ul9345mlg/wka6nQzRPcvk5sB6O2L0xCgOu7BPgGfhz4dV9NnjxLqUvrKGOWxg2j 7ZpxO+Kn0hRcMynPksvmHNMw/2h5LEmMq+mouuOD5cxJelNPC8FPJXerpf3tqFHQ Q/sqNB1hTiXfuHNijVe9GB9egrXVevmn1LqAesqOU+uHoBql9e47C5eV3KOVjVEt DHFK5x3yXpA8dIwzf9xw7LZkqNFcPaZHWlcvSYxUNPf4VY4+O2/Taqj8OrvM7LrM jp5Z0Jf75M859gYplFU7rlNKxiQ7l/rBLYn2ZAZwSWt4a4VleQcEwKrCGeKvpT/p f0oYAgkMXXklHS58TQVIqWP2EVwlGUi4<nul | clip
+	
+)
 ping -n 15 127.0.0.1 > nul
 :: Limpeza de arquivos temporários
 del "%USERPROFILE%\Downloads\TeraCopy.rar"
@@ -702,34 +709,36 @@ ping -n 2 127.0.0.1 > nul
 echo %BBLUE%%BLACK%TeraCopy instalado e licença copiada com sucesso. %RESET%
 pause
 
+powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $result = [System.Windows.Forms.MessageBox]::Show('Deseja acessar o servidor?', 'Confirmação', [System.Windows.Forms.MessageBoxButtons]::YesNo); if ($result -eq [System.Windows.Forms.DialogResult]::Yes) { exit 1 } else { exit 0 }"
+if %ERRORLEVEL%==1 (
+   echo %BRED%%BLACK%Acessando o servidor... %RESET%
+   net use \\192.168.2.153 Gaiola@2024 /user:Administrador
+start \\192.168.2.153
+net use \\192.168.2.153 /delete
+   echo %BRED%%BLACK%Conexão com o servidor feita! %RESET%
+) else (
+   echo %BRED%%BLACK%Prosseguindo...%RESET%
+)
+
 goto MENU_INSTALACAO
 
-
 :MENU_INSTALACAO_TORRENTS
-rem exemplo banco de dados: tudo separado por |
-rem Adobe Photoshop 2025 Portable [v26.0.0.26]|Keygen|https://youtube.com|BJ-SHARE
-rem Adobe Sony Vegas 2022 Portable [v26.0.0.26]|Keygen|https://youtube.com|BJ-SHARE
-rem Adobe Premiere pro 2022 Portable [v26.0.0.26]|Keygen|https://youtube.com|BJ-SHARE
+:: Caminho do banco de dados
+set "banco_dados=%USERPROFILE%\Downloads\Nogatec\banco_dados.txt"
 
-cls
-setlocal enabledelayedexpansion
-:: Caminho para o arquivo de banco de dados
-if not exist "%USERPROFILE%\Downloads\Nogatec\banco_dados.txt" (
-    echo %BRED%%BLACK%Baixando banco de dados...%RESET%
-    md "%USERPROFILE%\Downloads\Nogatec" >nul 2>&1
-	ping -n 2 127.0.0.1 > nul
-	curl -L -o "%USERPROFILE%\Downloads\Nogatec\banco_dados.txt" "https://www.dropbox.com/scl/fi/cxbzrmiqhdmnn0fcr179n/banco_dados.txt?rlkey=ta3ib4bo77qq9aoetspkpbh3p&st=ifwes8uq&dl=0"
-	ping -n 3 127.0.0.1 > nul
+:: Verifica se a pasta Nogatec existe, caso contrário, cria
+if not exist "%USERPROFILE%\Downloads\Nogatec" (
     echo %BGREEN%%BLACK%Pasta criada com sucesso! %RESET%
-	echo %BGREEN%%BLACK%Banco de dados baixado com sucesso! %RESET%
+    mkdir "%USERPROFILE%\Downloads\Nogatec"
 )
-ping -n 5 127.0.0.1 > nul
 
-set "banco_dados=%USERPROFILE%\Downloads\Nogatec\banco_dados.txt"
-rem https://download-hr.utorrent.com/track/stable/endpoint/utorrent/os/riserollout?filename=utorrent_installer.exe
+:: Agora, continua com o restante do script, como baixar o banco de dados, etc.
+if not exist "%banco_dados%" (
+    echo %BRED%%BLACK%Baixando banco de dados...%RESET%
+    curl -L -o "%banco_dados%" "https://www.dropbox.com/scl/fi/cxbzrmiqhdmnn0fcr179n/banco_dados.txt?rlkey=ta3ib4bo77qq9aoetspkpbh3p&st=ifwes8uq&dl=0"
+    echo %BGREEN%%BLACK%Banco de dados baixado com sucesso! %RESET%
+)
 
-:MENU_INSTALACAO_TORRENTS_MENU
-set "banco_dados=%USERPROFILE%\Downloads\Nogatec\banco_dados.txt"
 cls
 call :banner
 echo                ╔════════════════════════════════════════════════════════════════════════════╗
@@ -739,75 +748,101 @@ echo                ║                                                         
 echo                ║     2 - Voltar ao menu anterior                                            ║
 echo                ║                                                                            ║
 echo                ╚════════════════════════════════════════════════════════════════════════════╝
-set /p "opcao=Escolha uma opcao: "
-
-if "%opcao%"=="1" goto :MENU_INSTALACAO_TORRENTS_PESQUISAR
-if "%opcao%"=="2" goto :MENU_INSTALACAO
-
-goto :MENU_INSTALACAO_TORRENTS_MENU
+echo.
+echo.
+choice /c 12 /n /m "Escolha uma opção: "
+set choice=%errorlevel%
+if "%opcao%"=="1" goto MENU_INSTALACAO_TORRENTS_PESQUISAR
+if "%opcao%"=="2" goto MENU_INSTALACAO
 
 :MENU_INSTALACAO_TORRENTS_PESQUISAR
-set "banco_dados=%USERPROFILE%\Downloads\Nogatec\banco_dados.txt"
+cls
+call :banner
 set /p "nome=Digite o nome do aplicativo: "
-:: Pesquisar no banco de dados
 set "encontrado=0"
-for /f "tokens=1-4 delims=|" %%a in (%banco_dados%) do (
-    echo %%a | find /i "%nome%" >nul
+echo.
+
+:: Pesquisa no banco de dados usando findstr
+for /f "tokens=1-5 delims=|" %%a in (%banco_dados%) do (
+    echo %%a | findstr /i "%nome%" >nul
     if !errorlevel! == 0 (
-        set /a encontrado+=1	
+        set /a encontrado+=1
         echo !encontrado!. %%a
         set "app_!encontrado!=%%a"
         set "tipo_!encontrado!=%%b"
-        set "link_!encontrado!=%%c"
-        set "origem_!encontrado!=%%d"
+        set "link_1_!encontrado!=%%c"
+        set "link_2_!encontrado!=%%d"
+        set "origem_!encontrado!=%%e"
     )
 )
 
+:: Se não encontrar nada, volta ao menu
 if !encontrado! == 0 (
     echo Nenhum aplicativo encontrado.
+    echo %BBLUE% Nenhum aplicativo foi encontrado com esse nome. %RESET%
     pause
-    goto :MENU_INSTALACAO_TORRENTS_MENU
+    goto :MENU_INSTALACAO
 )
 
-set /p "escolha=Escolha um aplicativo pelo numero: "
+:: Selecionar o aplicativo encontrado
+set /p "escolha=Escolha um aplicativo pelo numero e pressione %GREEN%ENTER%RESET%: "
 set "app_selecionado=!app_%escolha%!"
 set "tipo_selecionado=!tipo_%escolha%!"
-set "link_selecionado=!link_%escolha%!"
+set "link_selecionado_1=!link_1_%escolha%!"
+set "link_selecionado_2=!link_2_%escolha%!"
 set "origem_selecionado=!origem_%escolha%!"
 
-:MENU_INSTALACAO_TORRENTS_MENU2
+goto :MENU_INSTALACAO_TORRENTS_CONFIRMAR
+
+:MENU_INSTALACAO_TORRENTS_CONFIRMAR
 cls
 call :banner
 echo.
 echo.
-echo                 %BWHITE%%BLACK%                                                  %RESET% 
-echo                 %BWHITE%%BLACK%   !app_selecionado!                           %RESET%                          
-echo                 %BWHITE%%BLACK%                                                  %RESET%                            
-echo                 %BWHITE%%BLACK%   Tipo de Ativacao: !tipo_selecionado!                       %RESET%                               
-echo                 %BWHITE%%BLACK%   URL de download: !link_selecionado!                        %RESET%                                
-echo                 %BWHITE%%BLACK%   Local de Origem: !origem_selecionado!                      %RESET%      
-echo                 %BWHITE%%BLACK%                                                  %RESET%                         
+echo                %WHITE%Nome: %GREEN%!app_selecionado!         %RESET%
+echo                %WHITE%Método de Ativação: %GREEN%!tipo_selecionado!         %RESET%
+echo                %WHITE%Fornecedor: %GREEN%!origem_selecionado!         %RESET%        
+echo.
+echo                %WHITE%URL De Download 1: %GREEN%!link_selecionado_1!         %RESET% 
+echo                %WHITE%URL De Download 2: %GREEN%!link_selecionado_2!         %RESET% 
+echo.
+echo.
 echo                ╔════════════════════════════════════════════════════════════════════════════╗
-echo                ║     1 - Baixar                                                             ║
-echo                ║     2 - Voltar ao Menu                                                     ║
+echo                ║                                 Detalhes                                   ║                             
+echo                ║════════════════════════════════════════════════════════════════════════════║
+echo                ║     1 - Baixar o arquivo selecionado (URL 1)                               ║
+echo                ║     2 - Baixar o arquivo selecionado (URL 2)                               ║
+echo                ║     3 - Voltar ao menu anterior                                            ║
 echo                ╚════════════════════════════════════════════════════════════════════════════╝
 echo.
 echo.
-set /p "opcao=Escolha uma opcao: "
 
-if "%opcao%"=="1" goto :MENU_INSTALACAO_TORRENTS_DOWNLOAD
-if "%opcao%"=="2" goto :MENU_INSTALACAO_TORRENTS_MENU
+set /p "opcao=Escolha uma opcao e pressione %GREEN%ENTER%RESET%: "
 
-goto :opcoes
+if "%opcao%"=="1" goto :MENU_INSTALACAO_TORRENTS_DOWNLOAD_1
+if "%opcao%"=="2" goto :MENU_INSTALACAO_TORRENTS_DOWNLOAD_2
+if "%opcao%"=="3" goto :MENU_INSTALACAO_TORRENTS
+goto MENU_INSTALACAO_TORRENTS
 
-:MENU_INSTALACAO_TORRENTS_DOWNLOAD
+:MENU_INSTALACAO_TORRENTS_DOWNLOAD_1
 cls
+echo Baixando !app_selecionado! do Link 1...
+echo %BRED%Fazendo o download de %BWHITE%%BLACK%!app_selecionado!...%RESET%
+curl -L -o "%USERPROFILE%\Downloads\Nogatec\!app_selecionado!.rar" "!link_selecionado_1!"
+echo %BWHITE%%BLACK%!app_selecionado! %RESET% %BGREEN%%BLACK%foi baixado com sucesso! %RESET%
 pause
-echo Baixando !app_selecionado!...
-:: Exemplo de comando para abrir o link no navegador
-start "" !link_selecionado!
+explorer "%USERPROFILE%\Downloads"
+goto :MENU_INSTALACAO_TORRENTS
+
+:MENU_INSTALACAO_TORRENTS_DOWNLOAD_2
+cls
+echo Baixando !app_selecionado! do Link 2...
+echo %BRED%Fazendo o download de %BWHITE%%BLACK%!app_selecionado!...%RESET%
+curl -L -o "%USERPROFILE%\Downloads\Nogatec\!app_selecionado!.rar" "!link_selecionado_2!"
+echo %BWHITE%%BLACK%!app_selecionado! %RESET% %BGREEN%%BLACK%foi baixado com sucesso! %RESET%
 pause
-goto :MENU_INSTALACAO_TORRENTS_MENU
+explorer "%USERPROFILE%\Downloads"
+goto :MENU_INSTALACAO_TORRENTS
 
 
 
@@ -822,17 +857,19 @@ echo                ║═══════════════════
 echo                ║     1 - Office 2021 e Windows (Instalação + Ativações)                     ║
 echo                ║     2 - Ativação Office                                                    ║
 echo                ║     3 - Ativação Windows                                                   ║
-echo                ║     4 - Voltar ao Menu Anterior                                            ║
+echo                ║     4 - Ativação Windows Server                                            ║
+echo                ║     5 - Voltar ao Menu Anterior                                            ║
 echo                ╚════════════════════════════════════════════════════════════════════════════╝
 echo.
 echo.
-choice /c 1234 /n /m "Escolha uma opção: "
+choice /c 12345 /n /m "Escolha uma opção: "
 set install_choice=%errorlevel%
 
 if "%install_choice%"=="1" goto MENU_INSTALACAO_WINDOWS_OFFICE
 if "%install_choice%"=="2" goto MENU_INSTALACAO_WINDOWS_OFFICE2
 if "%install_choice%"=="3" goto MENU_INSTALACAO_WINDOWS_WINDOWS
-if "%install_choice%"=="4" goto MENU_INSTALACAO
+if "%install_choice%"=="4" goto MENU_INSTALACAO_WINDOWS_SERVER
+if "%install_choice%"=="5" goto MENU_INSTALACAO
 goto MENU_INSTALACAO
 
 :MENU_INSTALACAO_WINDOWS_OFFICE
@@ -844,7 +881,7 @@ set "pasta_office=%pasta_instalacao%\Office 2021"
 set "pasta_aact=%pasta_instalacao%\AAct_Network_x64"
 set "arquivo_rar=%pasta_instalacao%\Arquivos.rar"
 set "pasta_windef=%pasta_instalacao%\WinDef.rar"
-set "link_dropbox=https://www.dropbox.com/s/srq8d8rpx6ey81o/Arquivos.rar?st=csgcgone&dl=1"
+set "link_dropbox=https://www.dropbox.com/s/geisbvplfws907e/Arquivos.rar?st=7d958qjl&dl=0"
 
 rem Desativar Anti virus
 echo %BRED%%BLACK%Pressione qualquer tecla para abrir o menu do Windows Defender%RESET%
@@ -1050,6 +1087,12 @@ ping -n 30 127.0.0.1 > nul
 pause
 goto MENU_INSTALACAO_WINDOWS
 
+:MENU_INSTALACAO_WINDOWS_SERVER
+echo %BRED%%BLACK%Abrindo painel para ativação do Windows Server %RESET%
+powershell -ExecutionPolicy Bypass -NoProfile -Command "irm https://get.activated.win | iex"
+echo %BGREEN%%BLACK%Painel aberto com sucesso! %RESET%
+pause
+goto MENU_INSTALACAO_WINDOWS
 
 rem 2 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rem 2 - Instalar gpedit.msc
@@ -1116,7 +1159,7 @@ set "WMP_LEGACY_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Access
 set "pasta_instalacao=%USERPROFILE%\Desktop\Nova Pasta"
 set "arquivo_rar=%pasta_instalacao%\Arquivos.rar"
 set "local_wallpaper=C:\Wallpaper.jpg"
-set "link_dropbox=https://www.dropbox.com/s/srq8d8rpx6ey81o/Arquivos.rar?st=csgcgone&dl=1"
+set "link_dropbox=https://www.dropbox.com/s/geisbvplfws907e/Arquivos.rar?st=7d958qjl&dl=1"
 set "WORD_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Word.lnk"
 set "EXCEL_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Excel.lnk"
 
@@ -1129,6 +1172,11 @@ set "ANYDESK_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\AnyDesk\A
 set "ANYVIEWER_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\AnyViewer\AnyViewer.lnk"
 set "DESKTOP_PATH=%USERPROFILE%\Desktop"
 
+set "pasta_windef=%pasta_instalacao%\WinDef.rar"
+
+cls
+call :bannerWIN10
+ping -n 2 127.0.0.1 > nul
 rem Energia
 echo %BRED%%BLACK%Definindo plano de energia...%RESET%
 powercfg /S SCHEME_MIN
@@ -1143,38 +1191,89 @@ powercfg -change -hibernate-timeout-dc 0
 echo %BGREEN%%BLACK%Plano de energia definido! %RESET%
 ping -n 2 127.0.0.1 > nul
 
-rem start "" "%SystemRoot%\Resources\Themes\aero.theme"
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes" /v CurrentTheme /t REG_SZ /d "%SystemRoot%\Resources\Themes\aero.theme" /f
-taskkill /f /im explorer.exe
-ping -5 2 127.0.0.1 > nul
-start explorer.exe
+rem Verificar se o arquivo .theme existe
+if exist "%SystemRoot%\Resources\Themes\aero.theme" (
+    start "" "%SystemRoot%\Resources\Themes\aero.theme"
+	ping -n 5 127.0.0.1 > nul
+        taskkill /f /im SystemSettings.exe
+        ping -n 2 127.0.0.1 > nul
+
+    taskkill /f /im explorer.exe
+    ping -n 5 127.0.0.1 > nul
+    start explorer.exe
+    echo %BGREEN%%BLACK%Tema Aero aplicado com sucesso!%RESET%
+) else (
+    echo %BBLUE%%BLACK%O arquivo aero.theme não foi encontrado.%RESET%
+)
+
 
 
 setlocal enabledelayedexpansion
-rem Caminho da Área de Trabalho
+rem Caminho da Área de Trabalho e Downloads
 set "DESKTOP=%USERPROFILE%\Desktop"
+set "downloads=%USERPROFILE%\Downloads"
 
 echo %BRED%%BLACK%Apagando ícones na Área de Trabalho... %RESET%
-rem Exclui todos os atalhos, exceto o próprio script
-for %%F in ("%DESKTOP%\*") do (
-    if "%%~nxF" neq "%~nx0" del /f /q "%%F" >nul 2>&1
+rem Definir as pastas de área de trabalho do usuário e pública
+set "user_desktop=%USERPROFILE%\Desktop"
+set "public_desktop=C:\Users\Public\Desktop"
+rem Excluir ícones na área de trabalho do usuário
+for %%F in ("%user_desktop%\*") do (
+    if /I "%%~nxF" neq "%~nx0" (
+        del /f /q "%%F" >nul 2>&1
+        rmdir /s /q "%%F" >nul 2>&1
+    )
+)
+rem Excluir ícones na área de trabalho pública
+for %%F in ("%public_desktop%\*") do (
+    if /I "%%~nxF" neq "%~nx0" (
+        rem Verifica se o arquivo já foi excluído na área de trabalho do usuário
+        if not exist "%user_desktop%\%%~nxF" (
+            del /f /q "%%F" >nul 2>&1
+            rmdir /s /q "%%F" >nul 2>&1
+        )
+    )
 )
 echo %BGREEN%%BLACK%Ícones apagados com sucesso! %RESET%
+echo %BRED%%BLACK%Movendo ícones... %RESET%
+for %%F in ("%user_desktop%\*") do (
+    if /I "%%~nxF" neq "%~nx0" (
+        move /Y "%%F" "%downloads%" >nul 2>&1
+    )
+)
+
+:: Mover arquivos e pastas do Desktop público, se ainda não foram movidos
+for %%F in ("%public_desktop%\*") do (
+    if /I "%%~nxF" neq "%~nx0" (
+        rem Verifica se o arquivo ou pasta já foi movido
+        if not exist "%user_desktop%\%%~nxF" (
+            move /Y "%%F" "%downloads%" >nul 2>&1
+        )
+    )
+)
+echo %BGREEN%%BLACK%Ícones movidos com sucesso! %RESET%
 rem Atualiza área de trabalho
 taskkill /f /im explorer.exe >nul 2>&1
 ping -n 2 127.0.0.1 >nul
 start explorer.exe
 rem Removendo Lixeira
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{B4FB3F98-C1EA-428d-A78A-D1F5659CBA93}" /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 1 /f
 rem Atualizando a área de trabalho
 taskkill /f /im explorer.exe
 RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
 ping -n 3 127.0.0.1 > nul
 start explorer.exe
 RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
-ping -n 2 127.0.0.1 > nul
-rem Adicionando ícones principais (Computador, Rede, Lixeira e Usuário)
+ping -n 5 127.0.0.1 > nul
+rem Adicionando seus respectivos ícones principais (Usuario, Meu Computador, Rede, Lixeira)
 RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d 0 /f
+taskkill /f /im explorer.exe
+ping -n 5 127.0.0.1 > nul
+RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+start explorer.exe
+RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+ping -n 5 127.0.0.1 > nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d 0 /f
 taskkill /f /im explorer.exe
 ping -n 5 127.0.0.1 > nul
@@ -1190,13 +1289,6 @@ start explorer.exe
 RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
 ping -n 5 127.0.0.1 > nul
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 0 /f
-taskkill /f /im explorer.exe
-ping -n 5 127.0.0.1 > nul
-RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
-start explorer.exe
-RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
-ping -n 5 127.0.0.1 > nul
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d 0 /f
 taskkill /f /im explorer.exe
 ping -n 5 127.0.0.1 > nul
 RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
@@ -1226,7 +1318,15 @@ call :copiarAtalho "%ADOBE_PATH%" "Adobe Acrobat.lnk"
 ping -n 2 127.0.0.1 >nul
 
 echo %BGREEN%%BLACK% Ícones organizados! %RESET%
-endlocal
+echo %BRED%%BLACK%Movendo ícones e pastas de volta para a Área de Trabalho... %RESET%
+:: Mover todos os arquivos e pastas de volta para a Área de Trabalho
+for %%F in ("%downloads%\*") do (
+    if /I "%%~nxF" neq "%~nx0" (
+        move /Y "%%F" "%user_desktop%" >nul 2>&1
+    )
+)
+
+echo %BGREEN%%BLACK%Ícones movidos de volta para a Área de Trabalho com sucesso! %RESET%
 
 ping -n 2 127.0.0.1 > nul
 rem UAC
@@ -1279,7 +1379,7 @@ if not exist "%pasta_instalacao%" (
 )
 
 rem Comandos Powershell para config
-powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/Powershell.ps1 | iex"
+powershell.exe -Command "Start-Process powershell.exe -ArgumentList '-Command', 'irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigWin10.ps1 | iex'" -Verb RunAs -WindowStyle Hidden -Wait
 
 ping -n 10 127.0.0.1 > nul
 
@@ -1300,10 +1400,27 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d 0 /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /t REG_DWORD /d 0 /f
 taskkill /f /im explorer.exe
-ping -n 2 127.0.0.1 > nul
+ping -n 5 127.0.0.1 > nul
 start explorer.exe
 ping -n 2 127.0.0.1 > nul
 
+echo %BRED%%BLACK%Realizando configurações de impressora...%RESET%
+reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Print" /v RpcAuthnLevelPrivacyEnabled /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides" /v 3598754956 /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides" /v 1921033356 /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides" /v 713073804 /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Printers\RPC" /v RpcUseNamedPipeProtocol /t REG_DWORD /d 1 /f
+taskkill /f /im explorer.exe
+ping -n 5 127.0.0.1 > nul
+start explorer.exe
+ping -n 2 127.0.0.1 > nul
+echo %BGREEN%%BLACK%Configurações de impressora foram modificadas com sucesso! %RESET%
+
+echo %BRED%%BLACK%Apagando Windows.old...%RESET%
+takeown /F C:\Windows.old /R /D Y
+icacls C:\Windows.old /grant Administrators:F /T
+RD /S /Q C:\Windows.old
+echo %BGREEN%%BLACK%Windows.old foi apagado com sucesso! %RESET%
 
 rem Definir tema padrão
 	REM echo %BRED%%BLACK%Definindo tema do windows...%RESET%
@@ -1335,18 +1452,39 @@ ping -n 2 127.0.0.1 > nul
 rundll32.exe user32.dll,UpdatePerUserSystemParameters
 ping -n 1 127.0.0.1 > nul
 echo %BRED%%BLACK%Modificando as configurações... %RESET%
-powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigPEEK.ps1 | iex"
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\DWM" /v EnableAeroPeek /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v ShellState /t REG_BINARY /d "24000000372800000000000000000000010000001300000000000000000062000000" /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v IconsOnly /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewShadow /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 3 /f
+reg add "HKCU\Control Panel\Desktop" /v FontSmoothing /t REG_SZ /d 2 /f
+rem powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigPEEK.ps1 | iex" -Wait
 echo %BGREEN%%BLACK%Configurações de desempenho do Windows foram modificadas com sucesso! %RESET%
-ping -n 3 127.0.0.1 > nul
+ping -n 20 127.0.0.1 > nul
+
+echo %BRED%%BLACK%Configurando Word... %RESET%
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Word\Security\ProtectedView" /v "DisableInternetFilesInPV" /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Word\Security\ProtectedView" /v "DisableAttachmentsInPV" /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Word\Security\ProtectedView" /v "DisableUnsafeLocationsInPV" /t REG_DWORD /d 1 /f
+echo %BGREEN%%BLACK%Word configurado com sucesso! %RESET%
+ping -n 2 127.0.0.1 > nul
+echo %BRED%%BLACK%Configurando Excel... %RESET%
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security\ProtectedView" /v "DisableInternetFilesInPV" /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security\ProtectedView" /v "DisableAttachmentsInPV" /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security\ProtectedView" /v "DisableUnsafeLocationsInPV" /t REG_DWORD /d 1 /f
+echo %BGREEN%%BLACK%Excel configurado com sucesso! %RESET%
 
 rem Game bar
 echo %BRED%%BLACK%Configurando Xbox GameBar... %RESET%
-powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigGAMEBAR.ps1 | iex"
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" /v GameDVR_Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v UseNexusForGameBarEnabled /t REG_DWORD /d 0 /f
+rem powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigGAMEBARWin10.ps1 | iex" -Wait
 echo %BGREEN%%BLACK%Xbox GameBar configurado com sucesso! %RESET%
-ping -n 3 127.0.0.1 > nul
+ping -n 15 127.0.0.1 > nul
 
 rem Segundo Planod
-echo %BRED%%BLACK%Abrindo aplicativos em segundo plano... %RESET%
+echo %BRED%%BLACK%Desativando aplicativos em segundo plano... %RESET%
 Reg Add HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications /v GlobalUserDisabled /t REG_DWORD /d 1 /f
 echo %BGREEN%%BLACK%Aplicativos em segundo plano desativado com sucesso! %RESET%
 ping -n 3 127.0.0.1 > nul
@@ -1363,10 +1501,18 @@ sc config wuauserv start= disabled
 ping -n 1 127.0.0.1 > nul
 echo %BGREEN%%BLACK%Serviço desligado com sucesso! %RESET%
 
+echo %BRED%%BLACK%Desinstalando Aplicativos... %RESET%
+powershell -Command "Get-AppxPackage *Microsoft.549981C3F5F10* | Remove-AppxPackage"
+powershell -Command "Get-AppxPackage *Microsoft.Copilot* | Remove-AppxPackage"
+powershell -Command "New-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'EnableCopilot' -Value 0 -Force"
+powershell -Command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'EnableCopilot' -Value 0"
+echo %BGREEN%%BLACK%Copilot e Cortana foram removidos com sucesso! %RESET%
+
+ping -n 5 127.0.0.1 > nul
 rem Abrindo msconfig
 echo %BRED%%BLACK%Abrindo msconfig... %RESET%
-powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/Config%20MSCONFIG.ps1 | iex"
-echo %BGREEN%%BLACK%msconfig aberto com sucesso! %RESET%
+powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigMSCONFIG.ps1 | iex" -Wait
+echo %BGREEN%%BLACK%Msconfig aberto com sucesso! %RESET%
 pause
 
 
@@ -1377,10 +1523,14 @@ echo %BGREEN%%BLACK%Gerenciador de Tarefas aberto com sucesso! %RESET%
 pause
 
 rem Verificação se as notificações foram desativadas
-echo %BRED%%BLACK%Notificações foi configurado com sucesso! %RESET%
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" /v "ToastEnabled" /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d 0 /f
+echo %BRED%%BLACK%Abrindo notificações... %RESET%
 start ms-settings:notifications
+echo %BGREEN%%BLACK%Notificações aberta com sucesso! %RESET%
 pause
-ping -n 2 127.0.0.1 > nul
 
 rem Aplicativos padrão
 echo %BRED%%BLACK%Abrindo aplicativos padrões... %RESET%
@@ -1400,19 +1550,20 @@ ping -n 5 127.0.0.1 > nul
 rem Abrir config intel
 if exist "C:\Windows\System32\igfxCPL.cpl" (
     start C:\Windows\System32\igfxCPL.cpl
+	pause
 ) 
 
 ping -n 5 127.0.0.1 > nul
 
 	echo %BRED%%BLACK%Abrindo GPEDIT para configurar o Windows Update...%RESET%	
-	powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/gpedit.ps1 | iex"
+	powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigGPEDITWin10.ps1 | iex" -Wait
 	echo %BGREEN%%BLACK%GPEDIT aberto com sucesso! %RESET%	
 	pause
 
 
 rem Ativar Windows Defender
 echo %BRED%%BLACK%Abrindo Windows Defender... %RESET%
-start windowsdefender://threat/
+powershell -Command "Start-Process '%pasta_windef%\WinDef\dControl.exe' -Verb runAs" -Wait
 echo %BGREEN%%BLACK%Windows Defender aberto com sucesso! %RESET%
 pause
 
@@ -1436,6 +1587,9 @@ start ms-availablenetworks:
 pause
 
 echo %BRED%%BLACK%Testar USBs.. %RESET%
+echo %BWHITE%%BLACK%
+powershell -Command "Get-WmiObject -Class Win32_PnPEntity | Where-Object { $_.DeviceID -like 'USB*' } | Select-Object DeviceID, Status"
+echo %RESET%
 pause
 
 echo %BRED%%BLACK%Testar entradas P2 (Som).. %RESET%
@@ -1460,11 +1614,15 @@ set "WMP_LEGACY_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Access
 set "pasta_instalacao=%USERPROFILE%\Desktop\Nova Pasta"
 set "arquivo_rar=%pasta_instalacao%\Arquivos.rar"
 set "local_wallpaper=C:\Wallpaper.jpg"
-set "link_dropbox=https://www.dropbox.com/s/srq8d8rpx6ey81o/Arquivos.rar?st=csgcgone&dl=1"
+set "link_dropbox=https://www.dropbox.com/s/geisbvplfws907e/Arquivos.rar?st=7d958qjl&dl=1"
 set "WORD_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Word.lnk"
 set "EXCEL_PATH=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Excel.lnk"
 set "DESKTOP_PATH=%USERPROFILE%\Desktop"
 
+
+cls
+call :bannerWIN11
+ping -n 2 127.0.0.1 > nul
 rem Energia
 echo %BRED%%BLACK%Definindo plano de energia...%RESET%
 powercfg /S SCHEME_MIN
@@ -1644,7 +1802,7 @@ rem Definir tema padrão
 	start "" "C:\Windows\Resources\Themes\aero.theme" & ping -n 3 127.0.0.1 > nul & taskkill /im "systemsettings.exe" /f
 	ping -n 3 127.0.0.1 > nul
 	echo %BRED%%BLACK%Abrindo GPEDIT para configurar o Windows Update...%RESET%	
-	powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/gpedit.ps1 | iex"
+	powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigGPEDITWin10.ps1 | iex"
 	echo %BGREEN%%BLACK%GPEDIT aberto com sucesso! %RESET%	
 	pause
 
@@ -1699,7 +1857,7 @@ pause
 
 rem Game bar
 echo %BRED%%BLACK%Configurando Xbox GameBar... %RESET%
-powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigGAMEBAR.ps1 | iex"
+powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/ConfigGAMEBARWin10.ps1 | iex"
 echo %BGREEN%%BLACK%Xbox GameBar configurado com sucesso! %RESET%
 pause
 
@@ -1757,56 +1915,213 @@ goto MENU_DRIVERS_WIN11
 
 :MENU_DRIVERS_WIN10
 cls
-echo %BGREEN%%BLACK%WINDOWS 10 DETECTADO%RESET%
+setlocal EnableDelayedExpansion
+call :bannerWIN10
 echo %BRED%%BLACK%Detectando informações do sistema...%RESET%
+
+    rem Versão do Windows
     for /f "tokens=2 delims==" %%I in ('wmic os get Caption /value') do set VERSAO_WINDOWS=%%I
+    rem Arquitetura do Sistema
     for /f "tokens=2 delims==" %%I in ('wmic os get OSArchitecture /value') do set ARQUITETURA_SISTEMA=%%I
+    rem Fabricante da Placa-Mãe
     for /f "tokens=2 delims==" %%I in ('wmic baseboard get Manufacturer /value') do set PLACA_MAE_FABRICANTE=%%I
+    rem Produto da Placa-Mãe
     for /f "tokens=2 delims==" %%I in ('wmic baseboard get Product /value') do set PLACA_MAE_PRODUTO=%%I
+    rem Revisão da Placa-Mãe
     for /f "tokens=2 delims==" %%I in ('wmic baseboard get Version /value') do set PLACA_MAE_REVISAO=%%I
+    rem Tipo de sistema (Notebook ou Desktop)
     for /f "tokens=2 delims==" %%I in ('wmic computersystem get PCSystemType /value') do (
         if %%I==2 (set TIPO_PLACAMAE=Notebook) else (set TIPO_PLACAMAE=Desktop)
     )
+	rem Placa de Vídeo
     for /f "tokens=2 delims==" %%I in ('wmic path win32_videocontroller get Name /value') do set PLACA_DE_VIDEO=%%I
+	
+    rem Fabricante do Sistema
+    for /f "tokens=2 delims==" %%I in ('wmic computersystem get Manufacturer /value') do set FABRICANTE_SISTEMA=%%I
+    rem Modelo do Sistema
+    for /f "tokens=2 delims==" %%I in ('wmic computersystem get Model /value') do set MODELO_SISTEMA=%%I
+    rem SKU do Sistema
+    for /f "tokens=2 delims==" %%I in ('wmic computersystem get ChassisSKUNumber /value') do set SKU_SISTEMA=%%I
+	for /f "tokens=2 delims==" %%I in ('wmic computersystem get SystemSKUNumber /value') do set SKU_SISTEMA_2=%%I
+	for /f "tokens=2 delims==" %%I in ('wmic computersystem get SystemFamily /value') do set SKU_SISTEMA_3=%%I
+	
+
+rem if /i "%PLACA_MAE_FABRICANTE%"=="Dell" (
+rem 	echo %BRED%Detectado Dell, baixando Dell SupportAssist...%RESET%
+rem     curl -L -o "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe" "https://downloads.dell.com/serviceability/catalog/SupportAssistinstaller.exe"
+rem 	ping -n 10 127.0.0.1 > nul
+rem     start /wait "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe"
+rem 	ping -n 30 127.0.0.1 > nul
+rem     echo %BRED%Abrindo página de suporte da Dell para detecção de drivers...%RESET%
+rem     start "" "https://www.dell.com/support/home/pt-br?app=drivers"
+rem 	ping -n 20 127.0.0.1 > nul
+rem )
+
+
+rem Verificação de fabricante
+set MARCAS=Dell Acer HP Samsung Lenovo
+for %%M in (%MARCAS%) do (
+    echo !FABRICANTE_SISTEMA! !MODELO_SISTEMA! !PLACA_MAE_FABRICANTE! !PLACA_MAE_PRODUTO! !SKU_SISTEMA! !SKU_SISTEMA_2! !SKU_SISTEMA_3! | findstr /I "%%M" >nul && (
+        call :Configurar_%%M
+        exit /b
+    )
 )
 
-if /i "%PLACA_MAE_FABRICANTE%"=="Dell" (
-	echo %BRED%Detectado Dell, baixando Dell SupportAssist...%RESET%
-    curl -L -o "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe" "https://downloads.dell.com/serviceability/catalog/SupportAssistinstaller.exe"
-	ping -n 10 127.0.0.1 > nul
-    start /wait "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe"
-	ping -n 30 127.0.0.1 > nul
-    echo %BRED%Abrindo página de suporte da Dell para detecção de drivers...%RESET%
-    start "" "https://www.dell.com/support/home/pt-br?app=drivers"
-	ping -n 20 127.0.0.1 > nul
-)
+echo %BBLUE%%BLACK%Nenhuma marca reconhecida encontrada. %RESET%
 goto MENU_DRIVERS1
+
+
+
+
+
 
 :MENU_DRIVERS_WIN11
 cls
-echo %BGREEN%%BLACK%WINDOWS 11 DETECTADO%RESET%
+call :bannerWIN11
 echo %BRED%%BLACK%Detectando informações do sistema...%RESET%
+
+    rem Versão do Windows
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"') do set VERSAO_WINDOWS=%%I
+    rem Arquitetura do Sistema
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_OperatingSystem).OSArchitecture"') do set ARQUITETURA_SISTEMA=%%I
+    rem Fabricante da Placa-Mãe
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_BaseBoard).Manufacturer"') do set PLACA_MAE_FABRICANTE=%%I
+    rem Produto da Placa-Mãe
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_BaseBoard).Product"') do set PLACA_MAE_PRODUTO=%%I
+    rem Revisão da Placa-Mãe
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_BaseBoard).Version"') do set PLACA_MAE_REVISAO=%%I
+    rem Tipo de sistema (Notebook ou Desktop)
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_ComputerSystem).PCSystemType"') do (
         if %%I==2 (set TIPO_PLACAMAE=Notebook) else (set TIPO_PLACAMAE=Desktop)
     )
+    rem Nome da Placa de Vídeo
     for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_VideoController).Name"') do set PLACA_DE_VIDEO=%%I
+    rem Fabricante do Sistema
+    for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_ComputerSystem).Manufacturer"') do set FABRICANTE_SISTEMA=%%I
+    rem Modelo do Sistema
+    for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_ComputerSystem).Model"') do set MODELO_SISTEMA=%%I
+    rem SKU do Sistema (Chassis SKUNumber)
+    for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_ComputerSystem).ChassisSKUNumber"') do set SKU_SISTEMA=%%I
+    rem SKU do Sistema Alternativo
+    for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_ComputerSystem).SystemSKUNumber"') do set SKU_SISTEMA_2=%%I
+    rem Família do Sistema
+    for /f "delims=" %%I in ('powershell -Command "(Get-CimInstance -ClassName Win32_ComputerSystem).SystemFamily"') do set SKU_SISTEMA_3=%%I
+
+
+rem if /i "%PLACA_MAE_FABRICANTE%"=="Dell" (
+rem 	echo %BRED%Detectado Dell, baixando Dell SupportAssist...%RESET%
+rem     curl -L -o "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe" "https://downloads.dell.com/serviceability/catalog/SupportAssistinstaller.exe"
+rem 	ping -n 10 127.0.0.1 > nul
+rem     start /wait "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe"
+rem 	ping -n 30 127.0.0.1 > nul
+rem     echo %BRED%Abrindo página de suporte da Dell para detecção de drivers...%RESET%
+rem     start "" "https://www.dell.com/support/home/pt-br?app=drivers"
+rem 	ping -n 20 127.0.0.1 > nul
+rem )
+
+set MARCAS=Dell Acer HP Samsung Lenovo
+for %%M in (%MARCAS%) do (
+    echo !FABRICANTE_SISTEMA! !MODELO_SISTEMA! !PLACA_MAE_FABRICANTE! !PLACA_MAE_PRODUTO! !SKU_SISTEMA! !SKU_SISTEMA_2! !SKU_SISTEMA_3! | findstr /I "%%M" >nul && (
+        call :Configurar_%%M
+        goto MENU_DRIVERS1
+    )
 )
-if /i "%PLACA_MAE_FABRICANTE%"=="Dell" (
-	echo %BRED%Detectado Dell, baixando Dell SupportAssist...%RESET%
-    curl -L -o "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe" "https://downloads.dell.com/serviceability/catalog/SupportAssistinstaller.exe"
-	ping -n 10 127.0.0.1 > nul
-    start /wait "%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe"
-	ping -n 30 127.0.0.1 > nul
-    echo %BRED%Abrindo página de suporte da Dell para detecção de drivers...%RESET%
-    start "" "https://www.dell.com/support/home/pt-br?app=drivers"
-	ping -n 20 127.0.0.1 > nul
-)
+
+echo %BBLUE%%BLACK%Nenhuma marca reconhecida encontrada. %RESET%
 goto MENU_DRIVERS1
+
+
+
+:Configurar_Dell
+setlocal EnableDelayedExpansion
+cls
+call :bannerDELL
+echo %BRED%%BLACK%Baixando Dell SupportAssist... %RESET%
+set "DELL_SUPPORT_URL=https://www.dell.com/support/home/pt-br?app=drivers"
+set "CHROME_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe"
+set "SUPPORTASSIST_INSTALLER=%USERPROFILE%\Downloads\DellSupportAssistInstaller.exe"
+curl -L -o "!SUPPORTASSIST_INSTALLER!" "https://downloads.dell.com/serviceability/catalog/SupportAssistInstaller.exe"
+ping -n 5 127.0.0.1 > nul
+echo %BRED%%BLACK%Instalando Dell SupportAssist... %RESET%
+start /wait "" "!SUPPORTASSIST_INSTALLER!"
+ping -n 10 127.0.0.1 > nul
+%BRED%%BLACK%echo Abrindo página de suporte da Dell para detecção de drivers...%RESET%
+start "" "!CHROME_PATH!" --incognito "!DELL_SUPPORT_URL!"
+timeout /t 20 > nul
+echo %BGREEN%%BLACK%Processo concluído. A página de suporte da Dell foi aberta no Google Chrome. %RESET%
+pause
+exit /b
+
+:Configurar_Acer
+setlocal EnableDelayedExpansion
+cls
+call :bannerACER
+echo %BRED%%BLACK%Baixando Acer SerialNumberDetectionTool... %RESET%
+set "ACER_SUPPORT_URL=https://www.acer.com/br-pt/support/drivers-and-manuals"
+set "CHROME_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe"
+set "SERIALNUMBER_INSTALLER=%USERPROFILE%\Downloads\SerialNumberDetectionTool.exe"
+curl -L -o "!SERIALNUMBER_INSTALLER!" "https://global-download.acer.com/SupportFiles/Files/SNID/APP/SerialNumberDetectionTool.exe"
+ping -n 5 127.0.0.1 > nul
+echo %BRED%%BLACK%Executando Acer SerialNumberDetectionTool... %RESET%
+start /wait "" "!SERIALNUMBER_INSTALLER!"
+ping -n 10 127.0.0.1 > nul
+echo %BRED%%BLACK%Abrindo página de suporte da Acer para detecção de drivers... %RESET%
+start "" "!CHROME_PATH!" --incognito "!ACER_SUPPORT_URL!"
+timeout /t 20 > nul
+echo %BGREEN%%BLACK%Processo concluído. A página de suporte da Acer foi aberta no Google Chrome. %RESET%
+pause
+exit /b
+
+:Configurar_HP
+setlocal EnableDelayedExpansion
+cls
+call :bannerHP
+echo %BRED%%BLACK%Baixando HP SupportSolutionsFramework... %RESET%
+set "HP_SUPPORT_URL=https://support.hp.com/br-pt/drivers/laptops/detect"
+set "CHROME_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe"
+set "HPSUPPORT_INSTALLER=%USERPROFILE%\Downloads\HPSupportSolutionsFramework.exe"
+curl -L -o "!HPSUPPORT_INSTALLER!" "https://www.dropbox.com/s/lktr9snpics6sxk/HPSupportSolutionsFramework.exe?st=fyooofzj&dl=1"
+ping -n 5 127.0.0.1 > nul
+echo %BRED%%BLACK%Executando HP SupportSolutionsFramework... %RESET%
+start /wait "" "!HPSUPPORT_INSTALLER!"
+ping -n 10 127.0.0.1 > nul
+echo %BRED%%BLACK%Abrindo página de suporte da HP para detecção de drivers... %RESET%
+start "" "!CHROME_PATH!" --incognito "!ACER_SUPPORT_URL!"
+timeout /t 20 > nul
+echo %BGREEN%%BLACK%Processo concluído. A página de suporte da HP foi aberta no Google Chrome. %RESET%
+pause
+exit /b
+
+:Configurar_Samsung
+cls
+call :bannerSAMSUNG
+echo %BRED%%BLACK%Instalando Samsung Update... %RESET%
+rem set "STORE_URL=ms-windows-store://pdp/?ProductId=9nq3hdb99vbf"
+winget install --id 9NQ3HDB99VBF --accept-source-agreements --accept-package-agreements
+ping -n 5 127.0.0.1 > nul
+echo %BGREEN%%BLACK%Samsung Update foi instalado. %RESET%
+pause
+exit /b
+
+:Configurar_Lenovo
+setlocal EnableDelayedExpansion
+cls
+call :bannerLENOVO
+echo %BRED%%BLACK%Baixando LSBSetup... %RESET%
+set "LENOVO_SUPPORT_URL=https://pcsupport.lenovo.com/br/pt"
+set "CHROME_PATH=C:\Program Files\Google\Chrome\Application\chrome.exe"
+set "LENOVO_INSTALLER=%USERPROFILE%\Downloads\LSBSetup.exe"
+curl -L -o "!LENOVO_INSTALLER!" "https://download.lenovo.com/lsbv5/LSBSetup.exe"
+ping -n 5 127.0.0.1 > nul
+echo %BRED%%BLACK%Executando LSBSetup... %RESET%
+start /wait "" "!LENOVO_INSTALLER!"
+ping -n 10 127.0.0.1 > nul
+echo %BRED%%BLACK%Abrindo página de suporte da Lenovo para detecção de drivers... %RESET%
+start "" "!CHROME_PATH!" --incognito "!LENOVO_SUPPORT_URL!"
+timeout /t 20 > nul
+echo %BGREEN%%BLACK%Processo concluído. A página de suporte da Lenovo foi aberta no Google Chrome. %RESET%
+pause
+exit /b
 
 :MENU_DRIVERS1
 cls
@@ -1814,19 +2129,32 @@ call :banner
 echo.
 echo.
 echo                %WHITE%Versão do Windows: %GREEN%%VERSAO_WINDOWS% %ARQUITETURA_SISTEMA%  %RESET%
-echo                %WHITE%Placa-mãe tipo: %GREEN%%TIPO_PLACAMAE% %RESET%
-echo                %WHITE%Modelo da placa de vídeo: %GREEN%%PLACA_DE_VIDEO%         %RESET%                        
+echo                %WHITE%Placa-mãe tipo: %GREEN%%TIPO_PLACAMAE% %RESET%    
+echo.
 echo                %WHITE%Fabricante da placa-mãe: %GREEN%%PLACA_MAE_FABRICANTE%     %RESET%                       
-echo                %WHITE%Modelo da placa-mãe: %GREEN%%PLACA_MAE_PRODUTO%          %RESET%
+echo                %WHITE%Produto da placa-mãe: %GREEN%%PLACA_MAE_PRODUTO%          %RESET%
 echo                %WHITE%Revisão da placa-mãe: %GREEN%%PLACA_MAE_REVISAO% %RESET%
+echo                %WHITE%Fabricante do sistema: %GREEN%%FABRICANTE_SISTEMA%  %RESET%
+echo                %WHITE%Modelo da placa-mãe: %GREEN%%MODELO_SISTEMA% %RESET%
+echo.
+echo                %WHITE%SKU do sistema: %GREEN%%SKU_SISTEMA%         %RESET%
+echo                %WHITE%SKU do sistema 2: %GREEN%%SKU_SISTEMA_2%         %RESET%
+echo                %WHITE%SKU do sistema 3: %GREEN%%SKU_SISTEMA_3%         %RESET%      
+echo.
+echo                %WHITE%Modelo da placa de vídeo: %GREEN%%PLACA_DE_VIDEO%         %RESET%  
 echo.
 echo.
 echo                ╔════════════════════════════════════════════════════════════════════════════╗
 echo                ║                                  Drivers                                   ║                             
 echo                ║════════════════════════════════════════════════════════════════════════════║
-echo                ║     1 - Drivers Placa-Mãe                                                  ║
-echo                ║     2 - Drivers Placa De Vídeo                                             ║
-echo                ║     3 - Voltar ao Menu Principal                                           ║
+echo                ║     1 - Drivers Placa-Mãe (FABRICANTE E/OU PRODUTO E REVISÃO)              ║
+echo                ║     2 - Drivers Placa-Mãe (FABRICANTE SISTEMA)                             ║
+echo                ║     3 - Drivers Placa-Mãe (MODELO DA PLACA-MÃE)                            ║
+echo                ║     4 - Drivers Placa-Mãe (SKU 1)                                          ║
+echo                ║     5 - Drivers Placa-Mãe (SKU 2)                                          ║
+echo                ║     6 - Drivers Placa-Mãe (SKU 3)                                          ║
+echo                ║     7 - Drivers Placa De Vídeo                                             ║
+echo                ║     8 - Voltar ao Menu Principal                                           ║
 echo                ╚════════════════════════════════════════════════════════════════════════════╝
 
 echo.
@@ -1834,9 +2162,13 @@ echo.
 set /p "opcao=Escolha uma opção e pressione %GREEN%ENTER%RESET%: "
 
 if "%opcao%"=="1" goto MENU_DRIVERS_PLACAMAE
-if "%opcao%"=="2" goto MENU_DRIVERS_PLACADEVIDEO
-if "%opcao%"=="3" goto MENU
-
+if "%opcao%"=="2" goto MENU_DRIVERS_FABRICANTESISTEMA
+if "%opcao%"=="3" goto :MENU_DRIVERS_MODELOPLACAMAE
+if "%opcao%"=="4" goto MENU_DRIVERS_SKU1
+if "%opcao%"=="5" goto MENU_DRIVERS_SKU2
+if "%opcao%"=="6" goto MENU_DRIVERS_SKU3
+if "%opcao%"=="7" goto MENU_DRIVERS_PLACADEVIDEO
+if "%opcao%"=="8" goto MENU
 
 :MENU_DRIVERS_PLACAMAE
 cls
@@ -1862,23 +2194,54 @@ start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%U
 pause
 goto MENU_DRIVERS
 
+:MENU_DRIVERS_FABRICANTESISTEMA
+cls
+set "URL4=https://www.google.com/search?q=%FABRICANTE_SISTEMA%+drivers"
+rem echo Abrindo página para download de drivers da placa de vídeo...
+rem start "" "https://www.google.com/search?q=%PLACA_DE_VIDEO%+drivers"
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%URL4%"
+pause
+goto MENU_DRIVERS
+
+:MENU_DRIVERS_MODELOPLACAMAE
+cls
+set "URL5=https://www.google.com/search?q=%MODELO_SISTEMA%+drivers"
+rem echo Abrindo página para download de drivers da placa de vídeo...
+rem start "" "https://www.google.com/search?q=%PLACA_DE_VIDEO%+drivers"
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%URL5%"
+pause
+goto MENU_DRIVERS
+
+:MENU_DRIVERS_SKU1
+cls
+set "URL6=https://www.google.com/search?q=%SKU_SISTEMA%+drivers"
+rem echo Abrindo página para download de drivers da placa de vídeo...
+rem start "" "https://www.google.com/search?q=%PLACA_DE_VIDEO%+drivers"
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%URL6%"
+pause
+goto MENU_DRIVERS
 
 
-REM WINDOWS 11 TEMA ESCURO
-:MENU_CONFIG_ESCURO11
-	echo %BRED%%BLACK%Definindo tema do windows...%RESET%	
-	start "" "C:\Windows\Resources\Themes\dark.theme" & ping -n 3 127.0.0.1 > nul & taskkill /im "systemsettings.exe" /f
-	ping -n 3 127.0.0.1 > nul
-	echo %BRED%%BLACK%Abrindo GPEDIT para configurar o Windows Update...%RESET%	
-	powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/gpedit.ps1 | iex"
-	echo %BGREEN%%BLACK%GPEDIT aberto com sucesso! %RESET%	
-	pause
-	echo %BRED%%BLACK%Definindo configurações de Segundo Plano...%RESET%	
-	powershell.exe -Command "irm https://raw.githubusercontent.com/GamerGb/nogatectools/refs/heads/main/gpeditSegundoPlano.ps1 | iex"
-	echo %BGREEN%%BLACK%Segundo plano configurado com sucesso! %RESET%	
+:MENU_DRIVERS_SKU2
+cls
+set "URL7=https://www.google.com/search?q=%SKU_SISTEMA_2%+drivers"
+rem echo Abrindo página para download de drivers da placa de vídeo...
+rem start "" "https://www.google.com/search?q=%PLACA_DE_VIDEO%+drivers"
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%URL7%"
+pause
+goto MENU_DRIVERS
+
+:MENU_DRIVERS_SKU3
+cls
+set "URL8=https://www.google.com/search?q=%SKU_SISTEMA_3%+drivers"
+rem echo Abrindo página para download de drivers da placa de vídeo...
+rem start "" "https://www.google.com/search?q=%PLACA_DE_VIDEO%+drivers"
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%URL8%"
+pause
+goto MENU_DRIVERS
 
 rem ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-rem banner
+rem banner ANSI Shadow name
 :banner
 echo.
 echo.
@@ -1894,6 +2257,104 @@ echo.
 exit /b
 
 
+:bannerDELL
+echo.
+echo.
+echo 					[38;2;127;255;255m ██████╗ ███████╗██╗     ██╗     
+echo 					[38;2;150;255;255m ██╔══██╗██╔════╝██║     ██║     
+echo 					[38;2;180;255;255m ██║  ██║█████╗  ██║     ██║     
+echo 					[38;2;200;255;255m ██║  ██║██╔══╝  ██║     ██║     
+echo 					[38;2;224;255;255m ██████╔╝███████╗███████╗███████╗
+echo 					[38;2;224;255;255m ╚═════╝ ╚══════╝╚══════╝╚══════╝
+echo.
+echo.
+echo.
+exit /b
+
+:bannerLENOVO
+echo.
+echo.
+echo 			[38;2;255;0;0m██╗     ███████╗███╗   ██╗ ██████╗ ██╗   ██╗ ██████╗ 
+echo 			[38;2;255;100;100m██║     ██╔════╝████╗  ██║██╔═══██╗██║   ██║██╔═══██╗
+echo 			[38;2;255;150;150m██║     █████╗  ██╔██╗ ██║██║   ██║██║   ██║██║   ██║
+echo 			[38;2;255;190;190m██║     ██╔══╝  ██║╚██╗██║██║   ██║╚██╗ ██╔╝██║   ██║
+echo 			[38;2;255;220;220m███████╗███████╗██║ ╚████║╚██████╔╝ ╚████╔╝ ╚██████╔╝
+echo 			[38;2;255;255;255m╚══════╝╚══════╝╚═╝  ╚═══╝ ╚═════╝   ╚═══╝   ╚═════╝ 
+echo.
+echo.
+echo.
+exit /b
+
+:bannerACER
+echo.
+echo.
+echo  			[38;2;77;128;77m█████╗  ██████╗███████╗██████╗ 
+echo  			[38;2;77;140;80m██╔══██╗██╔════╝██╔════╝██╔══██╗
+echo  			[38;2;77;150;85m███████║██║     █████╗  ██████╔╝
+echo  			[38;2;77;160;90m██╔══██║██║     ██╔══╝  ██╔══██╗
+echo  			[38;2;77;170;100m██║  ██║╚██████╗███████╗██║  ██║
+echo  			[38;2;77;180;105m╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝
+echo.
+echo.
+echo.
+exit /b
+
+
+:bannerSAMSUNG
+echo.
+echo.
+echo 			[38;2;0;97;255m███████╗ █████╗ ███╗   ███╗███████╗██╗   ██╗███╗   ██╗ ██████╗ 
+echo 			[38;2;128;160;255m██╔════╝██╔══██╗████╗ ████║██╔════╝██║   ██║████╗  ██║██╔════╝ 
+echo 			[38;2;165;190;255m███████╗███████║██╔████╔██║███████╗██║   ██║██╔██╗ ██║██║  ███╗
+echo 			[38;2;191;208;255m╚════██║██╔══██║██║╚██╔╝██║╚════██║██║   ██║██║╚██╗██║██║   ██║
+echo 			[38;2;230;249;250m███████║██║  ██║██║ ╚═╝ ██║███████║╚██████╔╝██║ ╚████║╚██████╔╝
+echo 			[38;2;255;255;255m╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ 
+echo.
+echo.
+echo.
+exit /b
+
+:bannerHP
+echo.
+echo.
+echo 						[38;2;0;97;255m██╗  ██╗██████╗ 
+echo 						[38;2;0;97;255m██║  ██║██╔══██╗
+echo 						[38;2;0;97;255m███████║██████╔╝
+echo 						[38;2;0;97;255m██╔══██║██╔═══╝ 
+echo 						[38;2;0;97;255m██║  ██║██║     
+echo 						[38;2;0;97;255m╚═╝  ╚═╝╚═╝     
+echo.
+echo.
+echo.
+exit /b
+
+:bannerWIN10
+echo.
+echo.
+echo 		  [38;2;0;121;184m██╗    ██╗██╗███╗   ██╗██████╗  ██████╗ ██╗    ██╗███████╗     ██╗ ██████╗ 
+echo 		  [38;2;0;121;184m██║    ██║██║████╗  ██║██╔══██╗██╔═══██╗██║    ██║██╔════╝    ███║██╔═████╗
+echo 		  [38;2;0;121;184m██║ █╗ ██║██║██╔██╗ ██║██║  ██║██║   ██║██║ █╗ ██║███████╗    ╚██║██║██╔██║
+echo 		  [38;2;0;121;184m██║███╗██║██║██║╚██╗██║██║  ██║██║   ██║██║███╗██║╚════██║     ██║████╔╝██║
+echo 		  [38;2;0;121;184m╚███╔███╔╝██║██║ ╚████║██████╔╝╚██████╔╝╚███╔███╔╝███████║     ██║╚██████╔╝
+echo 		  [38;2;0;121;184m╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚══════╝     ╚═╝ ╚═════╝ 
+echo.
+echo.
+echo.
+exit /b
+
+:bannerWIN11
+echo.
+echo.
+echo 		  [38;2;0;64;128m██╗    ██╗██╗███╗   ██╗██████╗  ██████╗ ██╗    ██╗███████╗     ██╗ ██╗
+echo 		  [38;2;0;64;128m██║    ██║██║████╗  ██║██╔══██╗██╔═══██╗██║    ██║██╔════╝    ███║███║
+echo 		  [38;2;0;64;128m██║ █╗ ██║██║██╔██╗ ██║██║  ██║██║   ██║██║ █╗ ██║███████╗    ╚██║╚██║
+echo 		  [38;2;0;64;128m██║███╗██║██║██║╚██╗██║██║  ██║██║   ██║██║███╗██║╚════██║     ██║ ██║
+echo 		  [38;2;0;64;128m╚███╔███╔╝██║██║ ╚████║██████╔╝╚██████╔╝╚███╔███╔╝███████║     ██║ ██║
+echo 		  [38;2;0;64;128m╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚══════╝     ╚═╝ ╚═╝
+echo.
+echo.
+echo.
+exit /b
 
 rem -----------------------------------------------------------------------------------------------------------------------------------
 rem MENU_INSTALACAO
@@ -1961,6 +2422,8 @@ if errorlevel 1 (
 
 echo %BGREEN%%BLACK%Instalação das dependências foram concluídas.%RESET%
 
+exit /b
+
 rem ----------------------------------------------------------------------------------------------------------------------------
 rem Função para copiar atalhos
 :copiarAtalho
@@ -1970,3 +2433,4 @@ if exist "%~1" (
 ) else (
     echo %BBLUE%%BLACK%Atalho de %~2 não encontrado! %RESET%
 )
+exit /b
