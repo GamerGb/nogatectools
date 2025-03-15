@@ -431,6 +431,35 @@ Write-Host "Tema e cores configurados com sucesso!"
 }
 
 
+function RemoverAtalhosTaskbar {
+    param (
+        [string[]]$AtalhosRemover
+    )
+
+    $TaskbarPath = "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"
+    $Shell = New-Object -ComObject Shell.Application
+
+    foreach ($Atalho in $AtalhosRemover) {
+        $AtalhoPath = Join-Path $TaskbarPath $Atalho
+        if (Test-Path $AtalhoPath) {
+            $Folder = $Shell.Namespace((Get-Item $AtalhoPath).DirectoryName)
+            $Item = $Folder.ParseName((Get-Item $AtalhoPath).Name)
+            $Item.InvokeVerb("Unpin from Taskbar")
+            Write-Output "Removido da barra de tarefas: $Atalho"
+        } else {
+            Write-Output "Atalho não encontrado: $Atalho"
+        }
+    }
+
+    # Reiniciar o Explorer para aplicar as mudanças
+    Stop-Process -Name explorer -Force
+    Start-Process explorer
+}
+
+# Chamando a função com os atalhos que deseja remover
+
+
+
 # Main function invocation
 EssentialTweaks;
 DisableServices;
@@ -440,3 +469,4 @@ DebloatMS;
 DebloatThirdParty;
 RestartExplorer;
 Cor;
+RemoverAtalhosTaskbar -AtalhosRemover @("Copilot.lnk", "Microsoft Store.lnk", "Microsoft Edge.lnk")
