@@ -81,18 +81,20 @@ echo 				║     1 - Instalação de Programas         ║
 echo 				║     2 - Instalar gpedit.msc  %INST%  
 echo 				║     3 - Configurações e Otimizações     ║
 echo 				║     4 - Instalação de Drivers           ║          
-echo 				║     5 - Sair                            ║
+echo 				║     5 - Utilitários                     ║
+echo 				║     6 - Sair                            ║
 echo 				╚═════════════════════════════════════════╝
 echo.
 echo.
-choice /c 12345 /n /m "Escolha uma opção: "
+choice /c 123456 /n /m "Escolha uma opção: "
 set choice=%errorlevel%
 
 if "%choice%"=="1" goto MENU_INSTALACAO
 if "%choice%"=="2" goto GPEDIT
 if "%choice%"=="3" goto MENU_CONFIG
 if "%choice%"=="4" goto MENU_DRIVERS
-if "%choice%"=="5" exit
+if "%choice%"=="5" goto MENU_UTILITARIOS
+if "%choice%"=="6" exit
 goto MENU
 
 rem 1 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -113,7 +115,7 @@ echo                ║     2 - Jogos (Básica + Drivers e Ferramentas para Game
 echo                ║     %BRED%%BLACK%3 - Design (Básica + Drivers e Ferramentas de Design)%RESET%                  ║
 echo                ║     4 - Teracopy                                                           ║
 echo                ║     5 - Ativações                                                          ║
-echo                ║     %BRED%%BLACK%6 - Programas Torrents%RESET%                                                 ║
+echo                ║     6 - Programas Torrents%RESET%                                                 ║
 echo                ║     7 - Voltar ao Menu Principal                                           ║
 echo                ╚════════════════════════════════════════════════════════════════════════════╝
 echo.
@@ -1119,18 +1121,20 @@ call :banner
 echo                ╔════════════════════════════════════════════════════════════════════════════╗
 echo                ║                                  Config                                    ║
 echo                ║════════════════════════════════════════════════════════════════════════════║
-echo                ║     1 - Padrão                                                             ║
-echo                ║     x                                                                      ║
-echo                ║     x                                                                      ║
-echo                ║     2 - Voltar ao menu anterior                                            ║
+echo                ║     1 - Padrão (Windows 10 / Windows 11)                                   ║
+echo                ║     %BRED%%BLACK%2 - Otimização individual (Para PC fraco)%RESET%                              ║
+echo                ║     %BRED%%BLACK%3 - Otimização Navegadores%RESET%                                             ║
+echo                ║     4 - Voltar ao menu anterior                                            ║
 echo                ╚════════════════════════════════════════════════════════════════════════════╝
 echo.
 echo.
-choice /c 12 /n /m "Escolha uma opção: "
+choice /c 123 /n /m "Escolha uma opção: "
 set install_choice=%errorlevel%
 
 if "%install_choice%"=="1" goto MENU_CONFIG_PADRAO
-if "%install_choice%"=="2" goto MENU
+if "%install_choice%"=="" goto MENU_CONFIG_INDIVIDUAL
+if "%install_choice%"=="" goto MENU_CONFIG_NAVEGADORES
+if "%install_choice%"=="4" goto MENU
 goto MENU_CONFIG
 
 
@@ -2240,6 +2244,643 @@ start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --incognito "%U
 pause
 goto MENU_DRIVERS
 
+
+rem ----------------------------------------------------------------------------------------------------------------------------------------
+rem UTILITARIOS
+:MENU_UTILITARIOS
+cls
+call :banner
+
+rem ## COLOCAR NA CONFIG PADRAO ou config personalizada
+rem Widgets / 0 - Off / 1 - On
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarDa" /t REG_DWORD /d "0" /f
+rem 0 - Disable Widgets
+rem reg add "HKCU\Software\Microsoft\PolicyManager\default\NewsAndInterests\AllowNewsAndInterests" /v "value" /t REG_DWORD /d "0" /f
+rem reg add "HKLM\Software\Policies\Microsoft\Dsh" /v "AllowNewsAndInterests" /t REG_DWORD /d "0" /f
+
+rem # Deletes Temp and Cache
+rem rmdir /s /q "C:\Windows\Temp"
+rem rmdir /s /q "%USERPROFILE%\AppData\Local\Temp"
+rem DEL /F /S /Q /A %LocalAppData%\Microsoft\Windows\Explorer\thumbcache_*.db
+
+rem # Disable Cortana
+rem reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /t REG_DWORD /d "0" /f
+
+rem # Hide most recent and most used apps
+rem reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v "HideRecentlyAddedApps" /t REG_DWORD /d "1" /f
+rem reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v "ShowOrHideMostUsedApps" /t REG_DWORD /d "2" /f
+
+rem # Disable Recommended Tips, Shortcuts, New Apps, and more on Start Menu
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Start_IrisRecommendations" /t REG_DWORD /d "0" /f
+
+rem # Disable Most Used Apps on Start Menu
+rem reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuMFUprogramsList" /t REG_DWORD /d "1" /f
+
+rem # Disable Auto-install subscribed/suggested apps (games like Candy Crush Soda Saga/Minecraft)
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "ContentDeliveryAllowed" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "FeatureManagementEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "OemPreInstalledAppsEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "PreInstalledAppsEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "PreInstalledAppsEverEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SoftLandingEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContentEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338388Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338393Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353694Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353696Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContentEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v "DODownloadMode" /t REG_DWORD /d "0" /f
+rem reg add "HKLM\Software\Policies\Microsoft\Windows\DeliveryOptimization" /v "DODownloadMode" /t REG_DWORD /d "0" /f
+rem reg add "HKLM\Software\Policies\Microsoft\PushToInstall" /v "DisablePushToInstall" /t REG_DWORD /d "1" /f
+rem reg add "HKLM\Software\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG_DWORD /d "1" /f
+rem reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f
+rem reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f
+rem reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-314559Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-280815Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-314563Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-202914Enabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353698Enabled" /t REG_DWORD /d "0" /f
+
+
+rem # Disable Cortana
+rem reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Experience\AllowCortana" /v "value" /t REG_DWORD /d "0" /f
+rem ECHO Yes | reg add "HKCU\SOFTWARE\Microsoft\Speech_OneCore\Settings\VoiceActivation\Microsoft.549981C3F5F10_8wekyb3d8bbwe!App" /v "AgentActivationEnabled" /t REG_DWORD /d "0"
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "CanCortanaBeEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "CortanaEnabled" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "CortanaConsent" /t REG_DWORD /d "0" /f
+
+rem # Disable CoPilot
+rem reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCopilotButton" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t REG_DWORD /d "1" /f
+rem reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t REG_DWORD /d "1" /f
+rem reg add "HKCU\Software\Microsoft\Windows\Shell\Copilot" /v "CopilotDisabledReason" /t REG_SZ /d "FeatureIsDisabled" /f
+rem reg add "HKCU\Software\Microsoft\Windows\Shell\Copilot" /v "IsCopilotAvailable" /t REG_DWORD /d "0" /f
+rem reg add "HKCU\Software\Microsoft\Windows\Shell\Copilot\BingChat" /v "IsUserEligible" /t REG_DWORD /d "0" /f
+
+rem ## COLOCAR NA CONFIG PADRAO
+
+rem ## reparar windows update ##
+REM Fix Windows Update errors and bugs
+REM Deletes Windows Update cache
+rem del "%ALLUSERSPROFILE%\Application Data\Microsoft\Network\Downloader\qmgr*.dat"
+rem rmdir %systemroot%\SoftwareDistribution /S /Q
+rem rmdir %systemroot%\system32\catroot2 /S /Q
+rem ren c:\windows\winsxs\pending.xml pending.old
+rem bitsadmin.exe /reset /allusers
+
+
+
+rem ## COLOCAR NA INSTALACAO GAMER E UTILITARIOS ##
+rem winget install --id=Microsoft.VCRedist.2005.x86 -e
+rem winget install --id=Microsoft.VCRedist.2005.x64 -e
+rem winget install --id=Microsoft.VCRedist.2008.x86 -e
+rem winget install --id=Microsoft.VCRedist.2008.x64 -e
+rem winget install --id=Microsoft.VCRedist.2010.x86 -e
+rem winget install --id=Microsoft.VCRedist.2010.x64 -e
+rem winget install --id=Microsoft.VCRedist.2012.x86 -e
+rem winget install --id=Microsoft.VCRedist.2012.x64 -e
+rem winget install --id=Microsoft.VCRedist.2013.x86 -e
+rem winget install --id=Microsoft.VCRedist.2013.x64 -e
+rem winget install --id=Microsoft.VCRedist.2015+.x86 -e
+rem winget install --id=Microsoft.VCRedist.2015+.x64 -e
+rem winget install --id=Microsoft.VCRedist.2017.x86 -e
+rem winget install --id=Microsoft.VCRedist.2017.x64 -e
+rem winget install --id=Microsoft.VCRedist.2019.x86 -e
+rem winget install --id=Microsoft.VCRedist.2019.x64 -e
+rem winget install --id=Microsoft.VCRedist.2022.x86 -e
+rem winget install --id=Microsoft.VCRedist.2022.x64 -e
+rem ## COLOCAR NA INSTALACAO GAMER E UTILITARIOS ##
+
+
+rem ## Desinstalar app nas instalação Básica
+rem winget uninstall "cortana"
+rem winget uninstall "Microsoft.OneDrive"
+rem winget uninstall camera
+rem winget uninstall help
+rem winget uninstall photos
+rem winget uninstall phone
+rem winget uninstall edge
+rem winget uninstall "windows web experience pack"
+rem winget uninstall "Microsoft.Teams.Free"
+rem winget uninstall "Microsoft.Teams"
+rem winget uninstall "feedback hub"
+rem winget uninstall paint
+rem winget uninstall WebView2
+rem winget uninstall "LinkedIn"
+rem winget uninstall "LinkedInforWindows"
+rem winget uninstall "Clipchamp"
+rem winget uninstall "Clipchamp.Clipchamp"
+rem winget uninstall "Microsoft.Clipchamp"
+rem winget uninstall "Microsoft.Clipchamp.Clipchamp"
+rem winget uninstall "Microsoft.Windows.Clipchamp"
+rem winget uninstall "Microsoft.Windows.Clipchamp.Clipchamp"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsNotepad* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.People* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.549981C3F5F10* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.XboxGameOverlay* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.XboxGamingOverlay* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.XboxIdentityProvider* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.XboxSpeechToTextOverlay* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.GamingServices* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftEdgeBeta* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftEdgeStable* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Client-ProjFS* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *TelnetClient* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *TFTP* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *TIFFIFilter* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *NetFx4-AdvSrvs* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *WCF-Services45* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Todos* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.GamingApp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingWeather* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.ZuneMusic* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.ZuneVideo* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsAlarms* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsMaps* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftStickyNotes* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.YourPhone* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsNotepad* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.GetHelp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsFeedbackHub* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *MicrosoftTeams* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingSearch* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.ScreenSketch* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.PowerAutomateDesktop* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsSoundRecorder* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Getstarted* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftSolitaireCollection* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsCalculator* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsCamera* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingNews* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Xbox.TCUI* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Clipchamp.Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Clipchamp.Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Windows.Clipchamp.Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Clipchamp.Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Windows.Clipchamp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.OutlookForWindows* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.DolbyAudioExtensions* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftOfficeHub* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *microsoft.windowscommunicationsapps* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsTerminal* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *devhome* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Windows.DevHome* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingFinance* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.3DBuilder* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingFoodAndDrink* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingHealthAndFitness* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingSports* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingTranslator* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.BingTravel* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Messaging* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Microsoft3DViewer* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftJournal* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MicrosoftPowerBIForWindows* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MixedReality.Portal* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.NetworkSpeedTest* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.News* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Office.OneNote* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Office.Sway* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.OneConnect* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Print3D* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.SkypeApp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.XboxApp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *MicrosoftCorporationII.MicrosoftFamily* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *MicrosoftCorporationII.QuickAssist* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *MSTeams* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Edge* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MSPaint* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.OneDrive* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Paint* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Whiteboard* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.Windows.Photos* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WindowsStore* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.RemoteDesktop* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.EdgeWebView2Runtime* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *ACGMediaPlayer* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *ActiproSoftwareLLC* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *AdobeSystemsIncorporated.AdobePhotoshopExpress* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Amazon.com.Amazon* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *AmazonVideo.PrimeVideo* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Asphalt8Airborne* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *AutodeskSketchBook* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *CaesarsSlotsFreeCasino* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *COOKINGFEVER* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *CyberLinkMediaSuiteEssentials* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *DisneyMagicKingdoms* | Remove-AppxPackage"
+
+
+rem powershell -command "Get-AppxPackage -AllUsers *Disney* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *DrawboardPDF* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Duolingo-LearnLanguagesforFree* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *EclipseManager* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Facebook* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *FarmVille2CountryEscape* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *fitbit* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Flipboard* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *HiddenCity* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *HULULLC.HULUPLUS* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *iHeartRadio* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Instagram* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *king.com.BubbleWitch3Saga* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *king.com.CandyCrushSaga* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *king.com.CandyCrushSodaSaga* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *LinkedInforWindows* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *LinkedIn* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *LinkedIn* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *LinkedInforWindows* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *MarchofEmpires* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Netflix* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *NYTCrossword* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *OneCalendar* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *PandoraMediaInc* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *PhototasticCollage* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *PicsArt-PhotoStudio* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Plex* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *PolarrPhotoEditorAcademicEdition* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Royal Revolt* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Shazam* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Sidia.LiveWallpaper* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *SlingTV* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Spotify* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *TikTok* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *TuneInRadio* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Twitter* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Viber* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *WinZipUniversal* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Wunderlist* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *XING* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.HEVCVideoExtension* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.HEIFImageExtension* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.MPEG2VideoExtension* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.RawImageExtension* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.VP9VideoExtensions* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WebMediaExtensions* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WebpImageExtension* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *MicrosoftWindows.CrossDevice* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.WidgetsPlatformRuntime* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *RivetNetworks.KillerControlCenter* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.StorePurchaseApp* | Remove-AppxPackage"
+
+rem powershell -command "Get-AppxPackage -AllUsers *Microsoft.StartExperiencesApp* | Remove-AppxPackage"
+
+rem powershell "Get-WindowsPackage -Online | Where PackageName -like *QuickAssist* | Remove-WindowsPackage -Online -NoRestart"
+
+rem powershell "Get-WindowsPackage -Online | Where PackageName -like *Hello-Face* | Remove-WindowsPackage -Online -NoRestart"
+
+rem powershell "Get-WindowsOptionalFeature -Online | Where FeatureName -eq *WindowsMediaPlayer* | Disable-WindowsOptionalFeature -Online -NoRestart -WarningAction SilentlyContinue | Out-Null"
+
+rem powershell "Get-WindowsOptionalFeature -Online | Where FeatureName -eq *WorkFolders-Client* | Disable-WindowsOptionalFeature -Online -NoRestart -WarningAction SilentlyContinue | Out-Null"
+
+rem powershell "Get-WindowsOptionalFeature -Online | Where FeatureName -eq *Printing-XPSServices-Features* | Disable-WindowsOptionalFeature -Online -NoRestart -WarningAction SilentlyContinue | Out-Null"
+
+rem powershell "Get-WindowsOptionalFeature -Online | Where FeatureName -eq *FaxServicesClientPackage* | Disable-WindowsOptionalFeature -Online -NoRestart -WarningAction SilentlyContinue | Out-Null"
+
+rem powershell "Remove-Printer -Name "Fax" -ErrorAction SilentlyContinue"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *Media.WindowsMediaPlayer* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *MathRecognizer* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *Hello.Face* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *OpenSSH.Client* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *OpenSSH.Server* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *Print.Fax.Scan* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *Print.Management.Console* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *Microsoft.Windows.WordPad* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *App.StepsRecorder* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-WindowsCapability -Online | Where Name -like *OneCoreUAP.OneSync* | Remove-WindowsCapability -Online | Out-Null"
+
+rem powershell "Get-AppPackage -Allusers *Microsoft.Windows.SecureAssessmentBrowser* | Remove-AppPackage"
+
+echo                ╔════════════════════════════════════════════════════════════════════════════╗
+echo                ║                              Utilitarios                                   ║
+echo                ║════════════════════════════════════════════════════════════════════════════║
+echo                ║     1 - Acessar servidor                                                   ║
+echo                ║     2 - AIDA64 Portable                                                    ║
+echo                ║     3 - HWMonitor                                                          ║
+echo                ║     4 - CPU-Z                                                              ║
+echo                ║     5 - Speecy                                                             ║
+echo                ║     6 - Correção Windows corrompido                                        ║
+echo                ║     7 - CrystalDiskInfo                                                    ║
+echo                ║     8 - Reparar o MBR                                                      ║
+echo                ║     9 - Salvar configurações da rede                                       ║
+echo                ║     10 - FurMark                                                           ║
+echo                ║     11 - UnrealEngine                                                      ║
+echo                ║     12 - Windows Defender bloqueado                                        ║
+echo                ║     13 - Reiniciar Spooler de impressão                                    ║
+echo                ║     14 - Reparar Windows Update                                            ║
+echo                ║     15 - Desativar hibernação                                              ║
+echo                ║     16 - Instalar Visual C++ Drivers                                       ║
+echo                ║     17 - Resetar configurações de rede                                     ║
+echo                ║     18 - Verificar chave do Windows na BIOS                                ║
+echo                ║     19 - Ativar Touchpad                                                   ║
+echo                ║     20 - Ativar Bluetooth                                                  ║
+echo                ║     21 - Desativar Bitlocker                                               ║
+echo                ║     22 -                                                                   ║
+echo                ║     23 -                                                                   ║
+echo                ║     24 -                                                                   ║
+echo                ║     25 -                                                                   ║
+echo                ║     26 -                                                                   ║
+echo                ║     27 -                                                                   ║
+echo                ║     28 -                                                                   ║
+echo                ║     29 -                                                                   ║
+echo                ║     30 -                                                                   ║
+echo                ║     31 -                                                                   ║
+echo                ║     32 - Voltar ao menu anterior                                           ║
+echo                ╚════════════════════════════════════════════════════════════════════════════╝
+echo.
+echo.
+rem netsh int ip reset
+rem netsh winsock reset
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_18
+
+wmic path softwareLicensingService get OA3xOriginalProductKey
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_19
+
+rem # Enable TouchPad
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PrecisionTouchPad\Status" /v "Enabled" /t REG_DWORD /d "1" /f
+
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_20
+
+rem Enable Bluetooth
+
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthserv" /v "Start" /t REG_DWORD /d "2" /f
+rem net start bthserv
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\CDPUserSvc" /v "Start" /t REG_DWORD /d "2" /f
+rem net start CDPUserSvc
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\CDPSvc" /v "Start" /t REG_DWORD /d "2" /f
+rem net start CDPSvc
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BthAvctpSvc" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BthAvctpSvc
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\DevicesFlowUserSvc" /v "Start" /t REG_DWORD /d "2" /f
+rem net start DevicesFlowUserSvc
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\ClipSVC" /v "Start" /t REG_DWORD /d "2" /f
+rem net start ClipSVC
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BTHPORT
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTHUSB" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BTHUSB
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BluetoothUserService" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BluetoothUserService
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTAGService" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BTAGService
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BthA2dp" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BthA2dp
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BthEnum" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BthEnum
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BthHFEnum" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BthHFEnum
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BthLEEnum" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BthLEEnum
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BthMini" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BthMini
+rem reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTHMODEM" /v "Start" /t REG_DWORD /d "2" /f
+rem net start BTHMODEM
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_21
+
+rem manage-bde -off C:
+rem powershell.exe Disable-BitLocker -MountPoint "C:"
+
+rem 1 - Disable Bitlocker and Encrypting File System (EFS)
+rem reg add "HKLM\System\CurrentControlSet\Control\BitLocker" /v "PreventDeviceEncryption" /t REG_DWORD /d "1" /f
+rem fsutil behavior set disableencryption 1
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_21
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_22
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_23
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_24
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_25
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_26
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_27
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_28
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_29
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_30
+
+pause
+goto MENU
+
+:MENU_UTILITARIOS_31
+
+pause
+goto MENU
+
 rem ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rem banner ANSI Shadow name
 :banner
@@ -2422,6 +3063,19 @@ if errorlevel 1 (
 
 echo %BGREEN%%BLACK%Instalação das dependências foram concluídas.%RESET%
 
+exit /b
+
+:Depend2
+rem # Installs Winget through CLI
+
+powershell -Command "$ProgressPreference = 'SilentlyContinue'"
+echo Downloading WinGet and its dependencies...
+powershell -Command "Invoke-WebRequest -Uri 'https://aka.ms/getwinget' -OutFile 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'"
+powershell -Command "Invoke-WebRequest -Uri 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx' -OutFile 'Microsoft.VCLibs.x64.14.00.Desktop.appx'"
+powershell -Command "Invoke-WebRequest -Uri 'https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx' -OutFile 'Microsoft.UI.Xaml.2.8.x64.appx'"
+powershell -Command "Add-AppxPackage -Path 'Microsoft.VCLibs.x64.14.00.Desktop.appx'"
+powershell -Command "Add-AppxPackage -Path 'Microsoft.UI.Xaml.2.8.x64.appx'"
+powershell -Command "Add-AppxPackage -Path 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'"\
 exit /b
 
 rem ----------------------------------------------------------------------------------------------------------------------------
